@@ -1,0 +1,44 @@
+[
+  {
+    "id": "konbini",
+    "jp": "コンビニ",
+    "en": "Convenience store",
+    "facets": [
+      "convenience store",
+      "boxed lunch, rice ball, sandwich, snacks, drinks",
+      "paying at the register, change, receipt, points card",
+      "plastic bag, chopsticks, heating food in the microwave",
+      "open 24 hours, store clerk, shelves, new products",
+      "paying bills, parcels, ATM, photocopies"
+    ],
+    "category": "暮らし"
+  },
+  {
+    "id": "infosec",
+    "jp": "情報セキュリティ",
+    "en": "Information security",
+    "facets": [
+      "information security",
+      "vulnerability, attack, hacker, malware, virus",
+      "password, authentication, permission, account",
+      "encryption, decryption, certificate, key",
+      "data leak, personal information, unauthorized access, fraud",
+      "countermeasure, defense, firewall, monitoring, logs"
+    ],
+    "category": "仕事"
+  },
+  {
+    "id": "station",
+    "jp": "駅",
+    "en": "Train station",
+    "facets": [
+      "train station",
+      "ticket, ticket gate, IC card, fare, charge",
+      "platform, track, train, express, local train",
+      "transfer, line, timetable, last train, first train",
+      "delay, accident, crowded train, rush hour",
+      "station staff, announcement, exit, lost and found"
+    ],
+    "category": "暮らし"
+  }
+]

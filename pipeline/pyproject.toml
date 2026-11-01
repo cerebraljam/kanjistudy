@@ -1,0 +1,26 @@
+[project]
+name = "kanjistudy-pipeline"
+version = "0.1.0"
+description = "Builds the app's word graph from JMdict, the JLPT lists and word embeddings"
+requires-python = ">=3.12"
+dependencies = [
+  "networkx>=3.3",
+  "nltk>=3.9",
+  "numpy>=2",
+  "scikit-learn>=1.5",
+  "sentence-transformers>=3",
+  "torch>=2.6",
+  "wordfreq[cjk]>=3",
+]
+
+[tool.uv]
+package = false
+
+# PyPI's default torch (CUDA 13 bindings) aborts on WSL when probing the GPU; the CUDA 12.8 build works.
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true

@@ -1,0 +1,6 @@
+# Meanings to show instead of JMdict's, when its first sense is not the one the theme means.
+#   word = meaning; another meaning
+ホーム = platform; station platform
+改札 = ticket gate; ticket barrier
+チャージ = topping up (an IC card); charge
+消費税 = consumption tax; sales tax

@@ -1,0 +1,26 @@
+{
+  "name": "kanjistudy",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run",
+    "simulate": "vitest run tests/simulate.test.ts",
+    "data": "cd pipeline && uv run python fetch.py && uv run python vocab.py && uv run python embed.py && uv run python topic.py && uv run python build.py",
+    "candidates": "cd pipeline && uv run python candidates.py"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@tsconfig/svelte": "^5.0.8",
+    "@types/node": "^22.20.5",
+    "svelte": "^5.57.3",
+    "svelte-check": "^4.7.7",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}

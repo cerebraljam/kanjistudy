@@ -1,0 +1,158 @@
+{"group": 3, "action": "keep", "id": "properly-and-neatly", "jp": "きちんと", "en": "Properly and neatly", "category": "言葉", "drop": ["整った"]}
+{"group": 7, "action": "keep", "id": "all-kinds-of", "jp": "様々", "en": "All kinds of", "category": "言葉", "drop": ["いろいろあって", "種類豊富"]}
+{"group": 11, "action": "keep", "id": "grandparents-and-relatives", "jp": "家族・親戚", "en": "Family and relatives", "category": "暮らし", "drop": []}
+{"group": 15, "action": "keep", "id": "university", "jp": "大学", "en": "University", "category": "社会", "drop": []}
+{"group": 19, "action": "keep", "id": "upcoming-days", "jp": "これからの日", "en": "Coming days and weeks", "category": "考え", "drop": ["早速"]}
+{"group": 23, "action": "keep", "id": "military-ranks", "jp": "軍の階級", "en": "Military ranks", "category": "社会", "drop": []}
+{"group": 27, "action": "keep", "id": "carrying-out", "jp": "実施する", "en": "Carrying things out", "category": "言葉", "drop": ["強行採決"]}
+{"group": 31, "action": "keep", "id": "colours", "jp": "色", "en": "Colours", "category": "暮らし", "drop": ["黒い霧", "黒化", "白化", "黒煙"]}
+{"group": 35, "action": "keep", "id": "times-of-day", "jp": "一日の時間", "en": "Times of day", "category": "暮らし", "drop": ["同日"]}
+{"group": 39, "action": "reject", "reason": "place names (US/Canadian cities)"}
+{"group": 43, "action": "keep", "id": "persecution-and-oppression", "jp": "迫害", "en": "Persecution and oppression", "category": "社会", "drop": []}
+{"group": 47, "action": "reject", "reason": "grab-bag (後日/後ほど/詳しく/こちら/行ってきます) with no single theme; 後で/後ほど/後日 may appear in a time theme"}
+{"group": 51, "action": "keep", "id": "so-to-speak-expressions", "jp": "まさに・いわば", "en": "Literally, so to speak", "category": "言葉", "drop": ["１２０％", "かしこまりました", "こちらこそ", "それはさておき", "とはいうものの", "これぞ"]}
+{"group": 55, "action": "reject", "reason": "place names (Latin American countries/cities); 南米/中南米 useful elsewhere"}
+{"group": 59, "action": "keep", "id": "stages-first-half-last-half", "jp": "前半・後半", "en": "Stages and halves", "category": "考え", "drop": ["六十四分音符"]}
+{"group": 63, "action": "keep", "id": "police-interrogation", "jp": "取り調べ", "en": "Police interrogation", "category": "社会", "drop": []}
+{"group": 67, "action": "keep", "id": "orders-and-instructions", "jp": "命令", "en": "Orders and instructions", "category": "言葉", "drop": ["仕様書"]}
+{"group": 71, "action": "keep", "id": "hindering-and-promoting", "jp": "妨げる・促す", "en": "Hindering and promoting", "category": "言葉", "drop": []}
+{"group": 75, "action": "keep", "id": "teki-adjectives", "jp": "〜的・〜化", "en": "-teki and -ka words", "category": "言葉", "drop": ["一時金", "一時間", "ありふれた", "ありがち"]}
+{"group": 79, "action": "keep", "id": "skillful-or-forceful", "jp": "巧み・強引", "en": "Skillful or forceful", "category": "言葉", "drop": []}
+{"group": 83, "action": "reject", "reason": "place names (Japanese cities/prefectures)"}
+{"group": 87, "action": "reject", "reason": "place names (European countries)"}
+{"group": 91, "action": "keep", "id": "records-and-firsts", "jp": "史上・歴代", "en": "Records and firsts", "category": "考え", "drop": []}
+{"group": 95, "action": "keep", "id": "lies-and-fabrication", "jp": "嘘", "en": "Lies and fabrication", "category": "考え", "drop": []}
+{"group": 99, "action": "keep", "id": "historical-periods", "jp": "時期", "en": "Periods and eras", "category": "考え", "drop": ["初期化", "時代劇"]}
+{"group": 103, "action": "keep", "id": "constitution-and-legislation", "jp": "憲法", "en": "Constitution and legislation", "category": "社会", "drop": ["内閣法制局", "法制局"]}
+{"group": 107, "action": "keep", "id": "applying-and-excluding", "jp": "適用・除外", "en": "Applying and excluding", "category": "考え", "drop": ["対象化"]}
+{"group": 111, "action": "keep", "id": "verbs-of-looking", "jp": "見る", "en": "Verbs of looking", "category": "言葉", "drop": ["拝む"]}
+{"group": 115, "action": "keep", "id": "cleanliness-and-fussiness", "jp": "潔癖・神経質", "en": "Cleanliness and fussiness", "category": "考え", "drop": ["殺人的", "ひどく"]}
+{"group": 119, "action": "keep", "id": "good-and-evil", "jp": "善と悪", "en": "Good and evil", "category": "考え", "drop": ["健常者", "外道"]}
+{"group": 123, "action": "keep", "id": "seminars-and-lectures", "jp": "セミナー", "en": "Seminars and lectures", "category": "仕事", "drop": ["待ち合わせ場所", "カレッジ"]}
+{"group": 127, "action": "keep", "id": "verbs-of-flying", "jp": "飛ぶ", "en": "Verbs of flying", "category": "言葉", "drop": []}
+{"group": 131, "action": "keep", "id": "law", "jp": "法律", "en": "Law", "category": "社会", "drop": ["法性"]}
+{"group": 135, "action": "keep", "id": "usual-and-exceptional", "jp": "普通・例外", "en": "Usual and exceptional", "category": "言葉", "drop": []}
+{"group": 139, "action": "keep", "id": "mean-and-cheeky", "jp": "ずるい・生意気", "en": "Mean and cheeky", "category": "考え", "drop": []}
+{"group": 143, "action": "keep", "id": "quickly-and-urgently", "jp": "急ぎ", "en": "Quickly and urgently", "category": "言葉", "drop": ["適切", "不十分", "不適切", "不必要"]}
+{"group": 147, "action": "keep", "id": "bookshops-and-libraries", "jp": "本屋・図書館", "en": "Bookshops and libraries", "category": "暮らし", "drop": ["質屋"]}
+{"group": 151, "action": "keep", "id": "routes-and-detours", "jp": "道のり", "en": "Routes and detours", "category": "言葉", "drop": []}
+{"group": 155, "action": "keep", "id": "forgery-and-cover-ups", "jp": "偽装・隠蔽", "en": "Forgery and cover-ups", "category": "社会", "drop": []}
+{"group": 159, "action": "keep", "id": "compass-directions", "jp": "方角", "en": "Directions and sides", "category": "暮らし", "drop": ["南北問題"]}
+{"group": 163, "action": "keep", "id": "family-pairs", "jp": "兄弟・親子", "en": "Siblings, parents and children", "category": "暮らし", "drop": ["相姦"]}
+{"group": 167, "action": "keep", "id": "truth-and-true-feelings", "jp": "真相・本音", "en": "Truth and true feelings", "category": "考え", "drop": []}
+{"group": 171, "action": "keep", "id": "entrances-and-exits", "jp": "出入り口", "en": "Entrances and exits", "category": "暮らし", "drop": ["凱旋"]}
+{"group": 175, "action": "keep", "id": "therapy-and-coaching", "jp": "セラピー", "en": "Therapy and coaching", "category": "暮らし", "drop": []}
+{"group": 179, "action": "keep", "id": "accidents-and-mishaps", "jp": "災難", "en": "Accidents and mishaps", "category": "考え", "drop": ["ポロリ"]}
+{"group": 183, "action": "keep", "id": "applications-and-approval", "jp": "申請・承認", "en": "Applications and approval", "category": "社会", "drop": ["手続き的"]}
+{"group": 187, "action": "keep", "id": "motorbikes", "jp": "バイク", "en": "Motorbikes", "category": "暮らし", "drop": []}
+{"group": 191, "action": "keep", "id": "names-and-naming", "jp": "名前・呼び名", "en": "Names and naming", "category": "言葉", "drop": ["聖化", "指差す", "用いる", "属する", "見立て"]}
+{"group": 195, "action": "keep", "id": "chance-and-necessity", "jp": "偶然と必然", "en": "Chance and necessity", "category": "考え", "drop": ["局地", "局所", "一過"]}
+{"group": 199, "action": "keep", "id": "types-of-people", "jp": "人気者・変人", "en": "Types of people", "category": "考え", "drop": []}
+{"group": 203, "action": "keep", "id": "precision-and-delicacy", "jp": "精密・繊細", "en": "Precision and delicacy", "category": "考え", "drop": ["光学式文字認識", "光学", "機械化"]}
+{"group": 207, "action": "reject", "reason": "place names (China/Korea cities and countries); 韓国語/在日/朝鮮半島 may appear elsewhere"}
+{"group": 211, "action": "keep", "id": "standing-and-building", "jp": "立つ・建てる", "en": "Standing and building", "category": "言葉", "drop": ["鳥肌"]}
+{"group": 215, "action": "split", "themes": [{"id": "maybe-and-perhaps", "jp": "たぶん・もしかして", "en": "Maybe and perhaps", "category": "言葉", "words": ["多分", "もしかして", "ひょっとすると", "ひょっとして", "どうやら", "ひょっとしたら", "もしや", "もしかしたら", "まさか", "もしかすると", "おそらく", "てっきり", "きっと", "案の定", "だろうか", "だろう", "でしょう", "かもしれません", "かもしれない", "かもしれん", "ことによると", "間違いない", "ありそう", "ではないか", "じゃないか", "なにやら", "可能性が高い", "ような気がする"]}, {"id": "conversation-fillers", "jp": "あいづち", "en": "Fillers and replies", "category": "言葉", "words": ["いや", "じゃあ", "いやいや", "そうか", "まあ", "まあまあ", "そうね", "そう", "ああ", "さあ", "そうですね", "ほら", "なるほど", "はい", "はあ", "えっと", "うん", "いいえ", "では", "それでは", "ではまた"]}, {"id": "for-now-and-first", "jp": "とりあえず", "en": "For now, first of all", "category": "言葉", "words": ["とりあえず", "一応", "まず", "まずは", "ひとまず", "手始め", "少なくとも", "結局"]}]}
+{"group": 219, "action": "keep", "id": "dreams-and-reality", "jp": "夢と現実", "en": "Dreams and reality", "category": "考え", "drop": ["気の向くままに"]}
+{"group": 223, "action": "keep", "id": "precious-things", "jp": "大切なもの", "en": "Precious things", "category": "考え", "drop": []}
+{"group": 227, "action": "keep", "id": "stopping-and-continuing", "jp": "中止・継続", "en": "Stopping and continuing", "category": "考え", "drop": ["再開発", "閉鎖的"]}
+{"group": 231, "action": "keep", "id": "fans-and-enthusiasts", "jp": "ファン・マニア", "en": "Fans and enthusiasts", "category": "暮らし", "drop": ["バイブル", "有志"]}
+{"group": 235, "action": "keep", "id": "hearing-and-sounds", "jp": "聞こえる", "en": "Hearing and sounds", "category": "言葉", "drop": []}
+{"group": 239, "action": "reject", "reason": "place names (European cities/countries)"}
+{"group": 243, "action": "keep", "id": "wind", "jp": "風", "en": "Wind", "category": "社会", "drop": ["谷", "谷底"]}
+{"group": 247, "action": "keep", "id": "accounting-and-admin", "jp": "経理・総務", "en": "Accounting and admin", "category": "仕事", "drop": ["本番環境", "プロダクション", "産量", "生産性", "影の内閣"]}
+{"group": 251, "action": "split", "themes": [{"id": "many-and-few", "jp": "多い・少ない", "en": "Many and few", "category": "言葉", "words": ["多く", "数多く", "大半", "多い", "たくさん", "大勢", "多数", "多々", "大多数", "無数", "何人", "何人か", "いくつ", "少数", "大部分", "半数", "全員", "数十", "半分"]}, {"id": "this-kind-that-kind", "jp": "こんな・そんな", "en": "This kind, that kind", "category": "言葉", "words": ["そうした", "そういった", "こうした", "そのよう", "これら", "そんな", "そういう", "こういう", "こんな", "ああいう", "あんな", "こういった", "その"]}]}
+{"group": 255, "action": "keep", "id": "edges-and-sides", "jp": "端・両側", "en": "Edges and sides", "category": "言葉", "drop": ["下唇", "両眼", "角化", "下吏"]}
+{"group": 259, "action": "reject", "reason": "place names (Tokyo districts)"}
+{"group": 263, "action": "keep", "id": "news-media", "jp": "報道", "en": "News media", "category": "社会", "drop": []}
+{"group": 267, "action": "reject", "reason": "too few on-topic words (bicycle/handle parts: ペダル/ハンドル/レバー/サドル/グリップ/ノブ) once 弱虫 is removed"}
+{"group": 271, "action": "keep", "id": "models-and-toys", "jp": "模型・おもちゃ", "en": "Models and toys", "category": "暮らし", "drop": ["バンダイ", "ガンプラ", "遊戯的", "模型化"]}
+{"group": 275, "action": "keep", "id": "clothes", "jp": "服", "en": "Clothes", "category": "暮らし", "drop": ["フリゲート", "リブ", "フリンジ"]}
+{"group": 279, "action": "keep", "id": "theatre", "jp": "演劇", "en": "Theatre and stage", "category": "暮らし", "drop": ["読書", "観戦", "最後の舞台"]}
+{"group": 283, "action": "split", "themes": [{"id": "requests-and-refusals", "jp": "頼む・断る", "en": "Requests and refusals", "category": "言葉", "words": ["要請", "拒否", "申し出", "申し入れ", "申し出る", "要求", "応じる", "拒む", "承諾", "強要", "受け入れ", "拒絶", "申し入れる", "受け入れる", "打診", "求め", "容認", "勧める", "認める", "認め", "懇願", "断る", "求める", "嘆願", "同意", "辞退", "応える", "要望", "強いる", "了解", "許す", "許し", "応ずる", "勧め", "受け止める", "リクエスト"]}, {"id": "having-to", "jp": "〜なければならない", "en": "Having to", "category": "言葉", "words": ["なくてはならない", "なくてはいけない", "なくちゃいけない", "なきゃいけない", "余儀なく", "余儀なくされる", "仕方ない", "否めない"]}]}
+{"group": 287, "action": "keep", "id": "immigration", "jp": "出入国", "en": "Immigration and travel abroad", "category": "社会", "drop": ["形式化", "連行", "潜伏", "旅行券"]}
+{"group": 291, "action": "keep", "id": "drinks", "jp": "飲み物", "en": "Drinks", "category": "暮らし", "drop": ["レトルト", "即席", "カルピス"]}
+{"group": 295, "action": "keep", "id": "crowds-and-congestion", "jp": "混雑", "en": "Crowds and congestion", "category": "暮らし", "drop": ["動員", "総動員", "大募集"]}
+{"group": 299, "action": "keep", "id": "raising-and-growing", "jp": "育てる", "en": "Raising and growing", "category": "言葉", "drop": []}
+{"group": 303, "action": "keep", "id": "oceans-and-continents", "jp": "海と大陸", "en": "Oceans and continents", "category": "社会", "drop": ["尾"]}
+{"group": 307, "action": "split", "themes": [{"id": "katakana-colours", "jp": "カタカナの色", "en": "Katakana colours", "category": "暮らし", "words": ["ゴールド", "シルバー", "イエロー", "ピンク", "ブルー", "ホワイト", "グリーン", "ブラック", "パープル", "レッド", "オレンジ色", "オレンジ", "グレー", "ブラウン", "ベージュ", "ネイビー", "ブロンズ", "グレイ", "ダーク"]}, {"id": "gems-and-precious-metals", "jp": "宝石", "en": "Gems and precious metals", "category": "暮らし", "words": ["エメラルド", "パール", "サファイア", "クリスタル", "プラチナ", "ダイヤモンド", "ルビー", "ジュエル", "宝石", "ダイヤ", "カラット", "貴金属", "ストーン"]}]}
+{"group": 311, "action": "keep", "id": "literature-and-poetry", "jp": "文学・詩", "en": "Literature and poetry", "category": "社会", "drop": ["詩化", "批判的"]}
+{"group": 315, "action": "keep", "id": "progress-and-results", "jp": "進捗", "en": "Progress and results", "category": "仕事", "drop": ["最新性"]}
+{"group": 319, "action": "keep", "id": "shining-and-sparkling", "jp": "輝く", "en": "Shining and sparkling", "category": "言葉", "drop": ["宿る", "司る", "晃々", "ラメ"]}
+{"group": 323, "action": "keep", "id": "pets", "jp": "ペット", "en": "Pets", "category": "暮らし", "drop": ["目隠し", "手錠", "子牛"]}
+{"group": 327, "action": "keep", "id": "balance", "jp": "バランス", "en": "Balance and imbalance", "category": "考え", "drop": ["操作的", "拡大均衡"]}
+{"group": 331, "action": "keep", "id": "old-and-new", "jp": "新旧", "en": "Old and new", "category": "考え", "drop": ["現行犯", "旧事", "新概念"]}
+{"group": 335, "action": "keep", "id": "deciding-and-choosing", "jp": "決める・選ぶ", "en": "Deciding and choosing", "category": "言葉", "drop": ["登録者", "抹消", "選択科目", "ルール化", "きめ"]}
+{"group": 339, "action": "keep", "id": "weapons", "jp": "武器", "en": "Guns and weapons", "category": "社会", "drop": ["排気ガス"]}
+{"group": 343, "action": "keep", "id": "air-travel", "jp": "飛行機", "en": "Air travel", "category": "暮らし", "drop": ["コースター", "フライホイール", "フライ級", "コーヒーカップ", "ボーイング"]}
+{"group": 347, "action": "keep", "id": "advertising-and-promotion", "jp": "宣伝", "en": "Advertising and promotion", "category": "仕事", "drop": ["自己紹介", "自己"]}
+{"group": 351, "action": "keep", "id": "madness-and-pleasure", "jp": "狂気・快楽", "en": "Madness and pleasure", "category": "考え", "drop": ["サイコ", "決まり悪い"]}
+{"group": 355, "action": "keep", "id": "whereabouts-and-rumours", "jp": "行方・消息", "en": "Whereabouts and rumours", "category": "社会", "drop": ["善悪", "良し悪し"]}
+{"group": 359, "action": "keep", "id": "songs", "jp": "歌・曲", "en": "Songs and tunes", "category": "暮らし", "drop": ["ドラマ", "ドラマ化", "メドレーリレー", "テーマ"]}
+{"group": 363, "action": "keep", "id": "match-results", "jp": "勝敗", "en": "Match results", "category": "暮らし", "drop": ["逆輸入", "１８０度", "実績", "タイゲーム"]}
+{"group": 367, "action": "keep", "id": "peoples-and-ethnicity", "jp": "民族", "en": "Peoples and ethnicity", "category": "社会", "drop": ["外来語", "首長"]}
+{"group": 371, "action": "keep", "id": "moving-and-returning", "jp": "移る・戻る", "en": "Moving and returning", "category": "言葉", "drop": ["実行", "白紙", "手遅れ", "移行性"]}
+{"group": 375, "action": "keep", "id": "challenge-and-comeback", "jp": "挑戦・復帰", "en": "Challenge and comeback", "category": "考え", "drop": ["再起動", "解禁", "就く", "逆転勝ち"]}
+{"group": 379, "action": "keep", "id": "roles-and-responsibility", "jp": "役割・責任", "en": "Roles and responsibility", "category": "考え", "drop": ["おかわり", "義務教育"]}
+{"group": 383, "action": "keep", "id": "political-ideologies", "jp": "イデオロギー", "en": "Political ideologies", "category": "社会", "drop": ["ナポレオン", "ヒトラー", "急成長", "ナチ", "共産化", "保守性", "反動的", "至上", "尊厳", "親衛隊", "無政府", "偏向"]}
+{"group": 387, "action": "reject", "reason": "place names (old provinces and towns)"}
+{"group": 391, "action": "keep", "id": "medicine", "jp": "薬", "en": "Medicine and treatment", "category": "暮らし", "drop": ["たけのこ", "賞味期限", "食品", "血液型", "カプセル化", "歯科医師"]}
+{"group": 395, "action": "keep", "id": "rise-and-decline", "jp": "上昇・停滞", "en": "Rise and decline", "category": "考え", "drop": ["悪質化", "難化"]}
+{"group": 399, "action": "keep", "id": "stock-market", "jp": "株式市場", "en": "Stock market", "category": "社会", "drop": ["株式化", "市場性", "フリーマーケット", "最優遇"]}
+{"group": 403, "action": "keep", "id": "meetings-and-visits", "jp": "打ち合わせ・訪問", "en": "Meetings and visits", "category": "仕事", "drop": ["食べ歩き", "試食", "繰り広げる", "経験者", "体験", "実演"]}
+{"group": 407, "action": "keep", "id": "ghosts-and-monsters", "jp": "お化け", "en": "Ghosts and monsters", "category": "社会", "drop": ["身体障害者", "死傷者", "遺棄"]}
+{"group": 411, "action": "keep", "id": "sensors-and-gauges", "jp": "センサー・計器", "en": "Sensors and gauges", "category": "社会", "drop": []}
+{"group": 415, "action": "keep", "id": "rescue-and-firefighting", "jp": "救助・消防", "en": "Rescue and firefighting", "category": "暮らし", "drop": ["燃焼", "点火"]}
+{"group": 419, "action": "keep", "id": "good-and-bad-condition", "jp": "調子", "en": "Good and bad condition", "category": "考え", "drop": ["よす", "かっこ", "タチ", "イイ"]}
+{"group": 423, "action": "keep", "id": "music-genres", "jp": "音楽ジャンル", "en": "Music genres", "category": "暮らし", "drop": ["ビートルズ", "リトルロック", "メルヘン", "ヒッピー", "チック", "ストリーム", "ギア"]}
+{"group": 427, "action": "keep", "id": "classical-music", "jp": "クラシック音楽", "en": "Classical music", "category": "暮らし", "drop": ["モーツァルト", "ベートーヴェン", "ショパン", "バッハ"]}
+{"group": 431, "action": "keep", "id": "meals-and-breaks", "jp": "食事", "en": "Meals and breaks", "category": "暮らし", "drop": ["やきもち", "足止め", "一気"]}
+{"group": 435, "action": "reject", "reason": "mixed grab-bag: championship words (制覇/王者/覇者/王座/チャンピオン) and business expansion words (進出/参入/撤退/誘致/連携), neither reaching 8"}
+{"group": 439, "action": "keep", "id": "healing-and-fixing", "jp": "治る・直す", "en": "Healing and fixing", "category": "言葉", "drop": []}
+{"group": 443, "action": "keep", "id": "lack-and-shortage", "jp": "不足", "en": "Lack and shortage", "category": "考え", "drop": ["機能性", "機能的", "実体化", "実体", "機能", "真っ二つ", "優れる", "萎縮", "肥大", "退化", "空洞", "一様"]}
+{"group": 447, "action": "keep", "id": "wishes-and-prayers", "jp": "願い・祈り", "en": "Wishes and prayers", "category": "考え", "drop": ["契約書"]}
+{"group": 451, "action": "keep", "id": "limits", "jp": "制限", "en": "Limits", "category": "考え", "drop": ["無修正", "無化", "無", "開口", "下方", "上方"]}
+{"group": 455, "action": "keep", "id": "novels-and-works", "jp": "作品", "en": "Novels and works", "category": "社会", "drop": ["コミ", "どちらでもない", "どこにもない", "続報", "ブレイク"]}
+{"group": 459, "action": "keep", "id": "outings-and-festivals", "jp": "行事・アウトドア", "en": "Outings and festivals", "category": "暮らし", "drop": ["オールラウンド"]}
+{"group": 463, "action": "keep", "id": "cooking-methods", "jp": "料理", "en": "Cooking methods", "category": "暮らし", "drop": ["フランスパン", "蒸しパン"]}
+{"group": 467, "action": "keep", "id": "city-and-countryside", "jp": "都会と田舎", "en": "City and countryside", "category": "暮らし", "drop": ["ホームレス", "人目", "地方税", "ネオン", "郊外化", "都会化", "地域化", "地域的", "未開", "圏", "全域", "広域"]}
+{"group": 471, "action": "keep", "id": "conflict-and-disputes", "jp": "対立・紛争", "en": "Conflict and disputes", "category": "社会", "drop": ["分裂性", "干渉性", "干渉的", "矛盾性", "運動性", "重症化", "運動場", "運動", "落ち着いた", "取り返し"]}
+{"group": 475, "action": "keep", "id": "japanese-sweets-and-beans", "jp": "和菓子・豆", "en": "Sweets and beans", "category": "暮らし", "drop": ["ポン", "ドラ", "どり", "どら"]}
+{"group": 479, "action": "split", "themes": [{"id": "feudal-society", "jp": "封建社会", "en": "Feudal society", "category": "社会", "words": ["家臣", "領主", "家来", "従者", "側近", "城主", "百姓", "使用人", "手下", "農民", "平民", "村人", "武士", "殿様", "藩主", "仕える", "地主", "大名", "武将", "首領", "城下", "執事", "城下町", "封建的", "給仕", "城", "一揆", "治める", "しもべ", "神官"]}, {"id": "organisations", "jp": "組織", "en": "Organisations", "category": "仕事", "words": ["組織", "組織的", "組織化", "幹部", "首脳部", "部下", "直属", "総帥"]}]}
+{"group": 483, "action": "keep", "id": "smell-and-taste", "jp": "香り・味", "en": "Smell and taste", "category": "暮らし", "drop": ["あふれる", "あふれ", "湧く", "沸く", "湧き", "湧水"]}
+{"group": 487, "action": "reject", "reason": "junk: katakana fragments (キング/ガン/スパン/バリ/ピッ)"}
+{"group": 491, "action": "keep", "id": "keeping-and-losing", "jp": "保つ・失う", "en": "Keeping and losing", "category": "言葉", "drop": ["残った分", "攻める", "攻め", "脅迫的", "粘る", "粘り", "狙う"]}
+{"group": 495, "action": "reject", "reason": "mostly sex-industry vocabulary; only a few usable words (社交/社交的/紳士/淑女/家政婦)"}
+{"group": 499, "action": "split", "themes": [{"id": "running-services", "jp": "運行", "en": "Running services", "category": "暮らし", "words": ["運行", "発着", "運航", "乗船", "運休", "出航", "乗車", "入港", "航行", "停車", "運転", "運転中", "停泊", "出港", "就航", "始発", "直通", "発車", "運転手", "運転士", "通行止め", "徐行", "航海", "上陸", "不通", "一方通行"]}, {"id": "tickets-and-seats", "jp": "切符・座席", "en": "Tickets and seats", "category": "暮らし", "words": ["乗車券", "往復", "運賃", "片道", "切符", "座席", "商品券", "予約注文", "前売り券", "券", "きっぷ", "チケット", "回数券", "席", "前売り", "ポイントカード"]}]}
+{"group": 503, "action": "split", "themes": [{"id": "mistakes-and-misunderstandings", "jp": "間違い・勘違い", "en": "Mistakes and misunderstandings", "category": "考え", "words": ["勘違い", "間違え", "誤り", "見落とし", "間違う", "間違える", "間違い", "誤って", "見落とす", "誤解", "誤認", "思い込む", "混同", "訂正", "紛らわしい", "誤字", "誤る", "誤植", "不備", "ミス", "見逃す", "見逃し", "ど忘れ", "正しい", "正しく", "鵜呑み"]}, {"id": "noticing-and-finding", "jp": "気づく・見つける", "en": "Noticing and finding", "category": "言葉", "words": ["気づく", "気がつく", "気づき", "悟る", "悟り", "発見", "見つける", "見当たらない", "見つかる", "探し物", "探す", "逃す"]}]}
+{"group": 507, "action": "keep", "id": "drugs-and-organised-crime", "jp": "麻薬・暴力団", "en": "Drugs and organised crime", "category": "社会", "drop": ["山口組", "エリート", "インテリ", "良品", "不良品", "組"]}
+{"group": 511, "action": "keep", "id": "online-forums", "jp": "掲示板", "en": "Online forums", "category": "社会", "drop": ["ぶつぶつ", "プラ"]}
+{"group": 515, "action": "reject", "reason": "junk: katakana name fragments (ムーン/ドラゴン/ホーク...) and proper nouns"}
+{"group": 519, "action": "keep", "id": "local-government", "jp": "役所・地域", "en": "Local government", "category": "社会", "drop": ["ノーブル", "番手", "番", "同市"]}
+{"group": 523, "action": "keep", "id": "television-broadcasting", "jp": "テレビ放送", "en": "Television broadcasting", "category": "社会", "drop": ["ＴＢＳ", "テレ朝", "ＮＨＫ", "テレビゲーム", "フジテレビ", "日テレ", "テレビ朝日", "日本テレビ", "テレビ化", "テレビ東京", "ＢＢＣ", "ＣＮＮ", "ＳＰ", "ＡＢＣ", "ＣＩＡ", "ＦＢＩ", "東映", "ＮＡＳＡ", "ＧＰ", "スパイ", "日本学術会議", "諜報", "ＧＨＱ", "ニコニコ", "エージェント", "工作員", "工作", "情報部", "工作機械"]}
+{"group": 527, "action": "split", "themes": [{"id": "building-materials-and-crafts", "jp": "資材・職人", "en": "Materials and crafts", "category": "仕事", "words": ["木材", "資材", "材木", "建材", "鋼材", "木工", "大工", "石材", "鍛冶", "職人", "丸太", "粘土", "工務", "工房", "細工", "技術者", "ＤＩＹ"]}, {"id": "food-supplies", "jp": "食料", "en": "Food supplies", "category": "社会", "words": ["食料", "食糧", "食料品", "物資", "穀物", "資源", "食品添加物", "食物", "健康食品", "自給", "備蓄"]}]}
+{"group": 531, "action": "keep", "id": "concerts-and-performance", "jp": "コンサート", "en": "Concerts and performance", "category": "暮らし", "drop": ["クエスト", "ギルド", "チャット", "フレンド", "リレー", "ミッション", "バトン", "メッセンジャー", "アンカー", "武道館"]}
+{"group": 535, "action": "keep", "id": "paying-and-spending", "jp": "支払い", "en": "Paying and spending", "category": "暮らし", "drop": ["かみ切る", "拍車", "歯止め"]}
+{"group": 539, "action": "keep", "id": "bags-and-luggage", "jp": "かばん・荷物", "en": "Bags and luggage", "category": "暮らし", "drop": ["ギロチン", "シャンティー", "シャネル", "チョーク", "ロッカールーム", "ポケットマネー", "船便", "預かり証"]}
+{"group": 543, "action": "split", "themes": [{"id": "active-and-bold", "jp": "積極的・力強い", "en": "Active and bold", "category": "考え", "words": ["アグレッシブ", "力強い", "積極", "男らしい", "たくましい", "積極的", "積極性", "勇敢", "果敢", "大胆", "生き生き", "豪快", "ストイック", "勇ましい", "ダイナミック", "元気", "活発", "意欲的", "パワフル", "硬派", "躍動", "男前", "旺盛", "精力", "マッチョ", "活発化", "エキサイティング", "しぶとい", "ワイルド", "活気", "威勢", "ハンサム", "熱血", "活力", "しつこい", "健やか", "執拗", "頑な", "活動的", "行動的"]}, {"id": "independence-and-initiative", "jp": "自主・自発", "en": "Independence and initiative", "category": "考え", "words": ["能動的", "自発的", "自発性", "自発", "能動", "率先", "受動的", "自主的", "自主性", "受動", "自立", "自主", "自律", "独立性", "受け身", "強制的", "強制", "自己管理"]}]}
+{"group": 547, "action": "keep", "id": "companies-and-customers", "jp": "会社・顧客", "en": "Companies and customers", "category": "仕事", "drop": ["同氏", "同国", "筆者"]}
+{"group": 551, "action": "keep", "id": "teams-and-groups", "jp": "チーム", "en": "Teams and groups", "category": "仕事", "drop": ["縄張り", "グループ化"]}
+{"group": 555, "action": "keep", "id": "sight-and-light", "jp": "視界・反射", "en": "Sight and light", "category": "社会", "drop": ["ＰＮＧ", "ＧＩＦ", "流動", "閉塞", "反射性", "ビジュアル化"]}
+{"group": 559, "action": "keep", "id": "fashion-and-goods", "jp": "ファッション", "en": "Fashion and goods", "category": "暮らし", "drop": ["アディダス", "サポーター", "ユース", "オルゴール", "ブリキ", "背番号", "ニュートラ", "トイ", "家具", "インテリア", "子供たち"]}
+{"group": 563, "action": "keep", "id": "furniture-and-bedding", "jp": "家具・寝具", "en": "Furniture and bedding", "category": "暮らし", "drop": ["ケージ", "コルク", "ボーン", "ロビー", "ラウンジ", "毛皮", "羊毛", "フェルト", "カウンター"]}
+{"group": 567, "action": "keep", "id": "computer-systems", "jp": "コンピューター", "en": "Computer systems", "category": "仕事", "drop": ["ミキサー", "シェイク", "ダンプ", "マイニング", "遠隔性", "タイムスタンプ"]}
+{"group": 571, "action": "split", "themes": [{"id": "awards-and-competitions", "jp": "受賞・コンテスト", "en": "Awards and competitions", "category": "社会", "words": ["受賞", "表彰", "賞", "授賞", "ノミネート", "コンテスト", "大賞", "授賞式", "金賞", "最優秀", "入賞", "アワード", "入選", "コンクール", "授与", "部門", "贈呈", "応募者", "コンペ", "グランプリ", "公募", "奨励", "応募", "エントリー", "募集", "アカデミー賞", "ノーベル賞", "式典", "開会", "閉会", "セレモニー", "スピーチ"]}, {"id": "conditions-and-requirements", "jp": "条件", "en": "Conditions and requirements", "category": "考え", "words": ["要項", "資格", "要件", "必須条件", "条件付き", "条件", "推奨", "検索条件", "要件定義"]}]}
+{"group": 575, "action": "keep", "id": "moving-and-turning", "jp": "動く・回る", "en": "Moving and turning", "category": "言葉", "drop": ["感動的"]}
+{"group": 579, "action": "keep", "id": "animals", "jp": "動物", "en": "Animals", "category": "社会", "drop": ["ゴリ", "ゴー", "マーチ", "はんこ", "レッツ", "印"]}
+{"group": 583, "action": "split", "themes": [{"id": "fear", "jp": "怖がる", "en": "Fear", "category": "考え", "words": ["怯え", "怯える", "怖がる", "震える", "震え", "ビクビク", "震わせる", "恐れる", "恐怖", "戦慄", "トラウマ", "オドオド", "恐怖症", "びく", "ガタガタ"]}, {"id": "enjoying-and-playing", "jp": "楽しむ・遊ぶ", "en": "Enjoying and playing", "category": "言葉", "words": ["味わう", "はしゃぐ", "楽しむ", "満喫", "遊ぶ", "堪能", "走り回る", "戯れ", "過ごす", "興じる", "浸る", "体感", "遊び相手", "三昧", "遊び", "享受", "親しむ", "エンジョイ"]}]}
+{"group": 587, "action": "keep", "id": "walls-and-building-parts", "jp": "壁・屋根", "en": "Walls, roofs and doors", "category": "暮らし", "drop": ["陣地", "要塞", "要塞化", "檻", "壕", "ダイナマイト", "ボディー", "ボディーブロー", "電源ケーブル", "塔"]}
+{"group": 591, "action": "keep", "id": "symptoms", "jp": "体の不調", "en": "Aches and symptoms", "category": "暮らし", "drop": ["案じる", "身", "出血性", "ゲロ"]}
+{"group": 595, "action": "reject", "reason": "brand/character names (superheroes, film titles) and katakana junk"}
+{"group": 599, "action": "keep", "id": "data-and-files", "jp": "データ", "en": "Data and files", "category": "仕事", "drop": ["マナーモード", "データベース化", "モジュール性", "モジュール化"]}
+{"group": 603, "action": "keep", "id": "spilling-floating-sinking", "jp": "漏れる・浮く・沈む", "en": "Spill, float, sink", "category": "言葉", "drop": ["機密性", "秘密性", "秘匿", "機密", "極秘", "秘密", "神秘化", "禁断", "ダダ", "タレ"]}
+{"group": 607, "action": "keep", "id": "clothing-patterns-and-cuts", "jp": "柄・デザイン", "en": "Clothing patterns and cuts", "category": "暮らし", "drop": ["ライン", "フロント", "サイド", "アンダー", "クロス", "バレル", "エンド", "ロール", "グランド", "カップ", "ホップ", "スラム", "ケース"]}
+{"group": 611, "action": "reject", "reason": "junk: katakana prefixes/fragments (ロング/ダブル/ビッグ...); 直球/変化球 may fit a baseball theme"}
+{"group": 615, "action": "keep", "id": "memories-and-nostalgia", "jp": "思い出", "en": "Memories and nostalgia", "category": "考え", "drop": ["腐る", "洒落", "塊", "破片", "粋", "涸れる", "枯れる", "知恵", "豆知識", "残骸", "断片"]}
+{"group": 619, "action": "keep", "id": "gambling-and-prizes", "jp": "ギャンブル・景品", "en": "Gambling and prizes", "category": "暮らし", "drop": ["魚群", "番長", "ＡＲＴ", "鉄拳", "６４", "パチパチ", "一位", "パチ"]}
+{"group": 623, "action": "reject", "reason": "random grab-bag (先に/少しも/思春期/消火器/数時間...) with no theme"}
+{"group": 627, "action": "keep", "id": "special-editions-and-selections", "jp": "特選・限定品", "en": "Special editions", "category": "暮らし", "drop": ["ジャパンカップ", "ストライカー", "ジャパン", "エース", "スターター", "プライムタイム", "レジェンド", "スキン", "ブースター", "なでしこ", "ケア", "ユニバーサル", "侍", "トライアル", "ピックアップ"]}
+{"group": 631, "action": "keep", "id": "ball-sports-and-rackets", "jp": "球技", "en": "Ball and racket", "category": "暮らし", "drop": ["金玉", "ブリーフ", "トランクス", "諭吉", "千円札", "冠", "一円"]}

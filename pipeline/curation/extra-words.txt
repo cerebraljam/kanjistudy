@@ -1,0 +1,34 @@
+# Compounds to include even though their frequency cannot be estimated reliably.
+# One per line, as written in JMdict. Anything after # is a comment.
+# Words that are not in JMdict are reported when vocab.py runs.
+
+# Software and IT operations
+再発防止
+恒久対策
+復号
+不正アクセス
+情報漏洩
+多要素認証
+要件定義
+単体テスト
+結合テスト
+本番環境
+開発環境
+仕様書
+設計書
+進捗
+工数
+納期
+見積もり
+引き継ぎ
+
+# Everyday compounds the frequency filter misses
+個人情報
+各駅停車
+レジ袋
+電子レンジ
+マルウェア
+落とし物
+ポイントカード
+フィッシング
+乗り過ごす
