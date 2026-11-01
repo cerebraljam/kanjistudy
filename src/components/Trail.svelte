@@ -44,4 +44,9 @@
   .ends.fork { border-left: 1.5px solid var(--line-strong); padding-left: 10px; }
   .wrong { color: var(--wrong); padding-top: 2px; }
   .right { color: var(--right); font-weight: 500; padding-top: 2px; }
+  /* Short screens (a tablet in landscape) keep only the latest step, leaving room for the options. */
+  @media (max-height: 760px) {
+    .trail { height: 84px; }
+    .step:not(:last-child) { display: none; }
+  }
 </style>

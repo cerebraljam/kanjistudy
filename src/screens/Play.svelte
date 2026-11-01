@@ -46,7 +46,7 @@
       count: `${Math.min(done, session.length)} / ${session.length}`,
       pct: Math.min(1, done / session.length),
       chain: session.chain,
-      wordSize: w.jp.length > 4 ? 44 : w.jp.length > 3 ? 50 : 60,
+      wordSize: `min(${w.jp.length > 4 ? 44 : w.jp.length > 3 ? 50 : 60}px, 8dvh)`,
     };
   });
 
@@ -168,6 +168,9 @@
           <span class="glyph" aria-hidden="true">{view.meta.glyph}</span>
           <span>{view.meta.prompt}</span>
         </div>
+        <!-- Rebuilt for every question: a reused button would keep the last tap's touch/hover state,
+             and the same word can be the right answer twice in a row (関 to it, then 意 on it). -->
+        {#key view.q}
         <div class="options" class:six={view.q.options.length > 4}>
           {#each view.q.options as o, i (o.id)}
             {@const ruby = optionRuby(o)}
@@ -190,6 +193,7 @@
             </button>
           {/each}
         </div>
+        {/key}
       </section>
       <footer class="foot">
         {#if answered && (!answered.correct || !settings.autoAdvance)}
@@ -209,21 +213,34 @@
   .meta { display: flex; justify-content: space-between; }
   .chain { min-width: 52px; text-align: right; font-weight: 600; color: var(--accent); font-family: var(--jp); }
 
-  .stage { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; padding: 16px 0; }
-  .word-block { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 180px; text-align: center; }
+  /* Sizes follow the screen height, so six options fit on a short screen (a tablet in landscape) without scrolling. */
+  .stage { flex-grow: 1; display: flex; flex-direction: column; gap: clamp(10px, 2.4dvh, 20px); padding: clamp(6px, 2dvh, 16px) 0; }
+  .word-block { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: clamp(90px, 20dvh, 180px); text-align: center; }
   .reveal { min-height: 20px; }
   .prompt { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; }
 
   .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   /* Fixed height: answering adds a gloss line, and nothing on screen should move when it does. */
   .option {
-    position: relative; height: 92px; padding: 8px 10px; overflow: hidden;
+    position: relative; height: clamp(64px, 11dvh, 92px); padding: 8px 10px; overflow: hidden;
     border-radius: var(--radius); border: 1.5px solid var(--line-strong); background: var(--bg);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
     text-align: center; cursor: pointer;
   }
-  .options.six .option { height: 84px; }
-  .option:hover:not(:disabled) { border-color: var(--ink); }
+  .options.six .option { height: clamp(58px, 9.5dvh, 84px); }
+  /* Short and wide (a tablet in landscape): use the width, six options in three columns. */
+  @media (max-height: 700px) {
+    .options { gap: 8px; }
+    .foot { padding-top: 4px; }
+  }
+  @media (max-height: 700px) and (min-width: 700px) {
+    .play { max-width: 640px; }
+    .options.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  /* Only with a real mouse: on touch screens :hover sticks to the last button tapped. */
+  @media (hover: hover) and (pointer: fine) {
+    .option:hover:not(:disabled) { border-color: var(--ink); }
+  }
   .option:disabled { cursor: default; }
   .option .label { font-size: 16px; font-weight: 500; }
   .option .sub {
@@ -238,7 +255,7 @@
   .option.wrong :global(.jp), .option.wrong .label { text-decoration: line-through; }
   .option.dim { border-color: var(--line); color: var(--muted); }
 
-  .foot { min-height: 76px; display: flex; align-items: center; padding-top: 12px; }
+  .foot { min-height: clamp(56px, 9dvh, 76px); display: flex; align-items: center; padding-top: 12px; }
   .center { width: 100%; text-align: center; }
 
   .peek .word-block { gap: 8px; }

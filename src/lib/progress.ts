@@ -106,6 +106,22 @@ export function infer(p: Progress, key: LinkKey) {
   if (!p.links[key]) p.links[key] = { box: FIRST_SIGHT_BOX, n: 0, ok: 0, last: p.step };
 }
 
+/** Answered at least once and never missed. */
+export const neverMissed = (p: Progress, key: LinkKey): boolean => {
+  const st = p.links[key];
+  return !!st && st.n > 0 && st.ok === st.n;
+};
+
+/**
+ * Fast track for words the player already knows: independent right answers, with no miss,
+ * make the links solid at once instead of asking each one again. Two lucky 1-in-4 guesses
+ * in a row happen 1 time in 16, and a later miss still drops the box as usual.
+ */
+export function confirm(p: Progress, keys: LinkKey[]) {
+  if (!keys.every((k) => neverMissed(p, k))) return;
+  for (const k of keys) p.links[k].box = Math.max(p.links[k].box, SOLID);
+}
+
 /** Links of a theme that were asked and are still weak, weakest first. */
 export function weakLinks(g: Graph, p: Progress, t: ThemeId, limit = 5): { key: LinkKey; stat: LinkStat }[] {
   return g.themeLinks(t)

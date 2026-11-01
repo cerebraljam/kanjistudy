@@ -22,6 +22,7 @@ export class Graph {
   readonly themeList: Theme[];
   private readonly adj = new Map<WordId, Neighbor[]>();
   private readonly themesByWord = new Map<WordId, ThemeId[]>();
+  private readonly categoriesByWord = new Map<WordId, Set<string>>();
   private readonly linksByTheme = new Map<ThemeId, LinkKey[]>();
   private readonly linksByWordInTheme = new Map<string, LinkKey[]>();
 
@@ -38,7 +39,14 @@ export class Graph {
     this.themeList = data.themes;
     for (const t of data.themes) {
       this.themes.set(t.id, t);
-      for (const w of t.words) this.themesByWord.get(w)?.push(t.id);
+      for (const w of t.words) {
+        this.themesByWord.get(w)?.push(t.id);
+        if (t.category && this.words.has(w)) {
+          const c = this.categoriesByWord.get(w) ?? new Set<string>();
+          c.add(t.category);
+          this.categoriesByWord.set(w, c);
+        }
+      }
       this.indexThemeLinks(t);
     }
   }
@@ -64,6 +72,15 @@ export class Graph {
   sharesTheme(a: WordId, b: WordId): boolean {
     const tb = this.themesOf(b);
     return this.themesOf(a).some((t) => tb.includes(t));
+  }
+
+  /** Whether the two words have a theme category in common (both in 言葉 themes, say). */
+  sharesCategory(a: WordId, b: WordId): boolean {
+    const ca = this.categoriesByWord.get(a);
+    const cb = this.categoriesByWord.get(b);
+    if (!ca || !cb) return false;
+    for (const c of ca) if (cb.has(c)) return true;
+    return false;
   }
 
   /** Words written in kanji get a reading question; pure-kana words do not. */

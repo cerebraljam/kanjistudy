@@ -3,7 +3,7 @@
 
 import { fakeReadings, shuffle } from './kana';
 import { edgeKey, meaningKey, readingKey, type Graph, type LinkKey } from './graph';
-import { infer, mastery, noteBest, record, SOLID, wordStatus, type Progress } from './progress';
+import { infer, mastery, noteBest, record, SOLID, wordStatus, type Progress, confirm, neverMissed } from './progress';
 import { isMove, type EdgeType, type QType, type ThemeId, type WordId } from './types';
 
 export interface Option {
@@ -67,6 +67,11 @@ const DRIFT = 0.6;
 const STAY_BOOST = 2.5;
 /** Chance to accept a random distractor, by JLPT level distance from the right answer. */
 const LEVEL_ACCEPT = [1, 0.5, 0.15, 0.05, 0.05];
+/** A run is "on a roll" after ROLL_MIN answers with at least ROLL_ACCURACY right: known words then move faster. */
+const ROLL_MIN = 6;
+const ROLL_ACCURACY = 0.9;
+/** On a roll, how much more the chain favors theme words not seen yet. */
+const ROLL_NEW = 2.5;
 /** Questions about one word in a run before the chain prefers others. */
 const MAX_VISITS = 3;
 
@@ -121,13 +126,34 @@ export class Session {
 
     // The two-choice check right after a new word is for learning, not measuring: a coin flip
     // would get it right half the time. A miss still counts.
+    const firstSight = !this.p.links[q.key];
+    const roll = this.onARoll();
     if (!(q.check && correct)) record(this.p, q.key, correct);
+    // On a roll, a link right on first sight is taken as known: no need to ask it twice.
+    if (roll && correct && firstSight && !q.check) this.p.links[q.key].box = SOLID;
     this.asked.set(q.key, { at: this.history.length, correct });
     if (wasUnseen) this.fresh.add(learn);
 
     // Picking the right partner of a word you know well says you know the partner too.
     // Only then: a lucky guess from an unknown word must not earn free credit.
     if (correct && q.target && wordStatus(this.g, this.p, q.word) === 'solid') infer(this.p, meaningKey(q.target));
+
+    // Fast track: meaning and reading both right first time (or never missed) make the word solid.
+    // A kana-only word has no reading question: picking it right as a partner confirms its meaning.
+    if (correct && !q.check) {
+      if (q.q === 'mean' || q.q === 'read') {
+        const own = this.g.ownLinks(q.word);
+        if (own.length > 1) confirm(this.p, own);
+      } else if (q.target && !wasUnseen) {
+        confirm(this.p, [meaningKey(q.target)]);
+      } else if (q.target && roll) {
+        // Picking a never-asked word out of four as the right partner counts as a first-sight
+        // answer for its meaning (not solid yet), but only while the run shows the player knows
+        // this ground: for someone struggling, a right pick is too often a guess.
+        record(this.p, meaningKey(q.target), true);
+        this.p.links[meaningKey(q.target)].box = SOLID;
+      }
+    }
 
     if (correct) {
       this.chain += 1;
@@ -154,6 +180,19 @@ export class Session {
       this.lastStay = q.word;
     }
     return entry;
+  }
+
+  /** Theme words not solid yet, other than the current one. */
+  private unsettled(): number {
+    let n = 0;
+    for (const w of this.themeWords) if (w !== this.current && wordStatus(this.g, this.p, w) !== 'solid') n++;
+    return n;
+  }
+
+  /** The run so far shows easy ground: enough answers, nearly all right (two-choice checks aside). */
+  private onARoll(): boolean {
+    const counted = this.history.filter((h) => !h.question.check);
+    return counted.length >= ROLL_MIN && counted.filter((h) => h.correct).length / counted.length >= ROLL_ACCURACY;
   }
 
   /** Moves to the next question, or ends the run. A pending check may run one past the length. */
@@ -238,17 +277,26 @@ export class Session {
     const visits = (x: WordId) => this.history.filter((h) => h.question.word === x).length;
     const tired = (x: WordId) => (visits(x) >= MAX_VISITS ? 0.08 : 1);
     const stayMult = (this.lastStay === w ? 0.15 : STAY_BOOST) * tired(w);
+    let stayCount = 0;
     if (inTheme(w) || this.lastStay !== w) {
       const stays: ('mean' | 'read')[] = this.g.hasReading(w) ? ['mean', 'read'] : ['mean'];
       for (const q of stays) {
         const key = q === 'mean' ? meaningKey(w) : readingKey(w);
-        cands.push({ weight: this.linkWeight(key) * stayMult, make: () => this.makeStay(q, w, this.optionCount(key), false, jumped) });
+        // Ask what is still unproven: a known meaning with an unasked reading wants the reading,
+        // which settles the word in one question.
+        const other = q === 'mean' ? readingKey(w) : meaningKey(w);
+        const gap = stays.length > 1 && !this.p.links[key] && neverMissed(this.p, other) ? 3 : stays.length > 1 && neverMissed(this.p, key) && !this.p.links[other] ? 0.3 : 1;
+        cands.push({ weight: this.linkWeight(key) * stayMult * gap, make: () => this.makeStay(q, w, this.optionCount(key), false, jumped) });
+        stayCount++;
       }
     }
 
+    // On a roll, new ground is worth more than re-checking words just proven.
+    const roll = this.onARoll();
     const recent = this.visited.slice(-2);
     for (const n of this.g.neighbors(w)) {
       let mult = tired(n.to);
+      if (roll && inTheme(n.to) && wordStatus(this.g, this.p, n.to) === 'unseen') mult *= ROLL_NEW;
       if (recent.includes(n.to)) mult *= 0.2;
       if (!inTheme(n.to)) {
         if (!inTheme(w)) continue; // at most one step outside the theme
@@ -256,16 +304,32 @@ export class Session {
       } else if (!inTheme(w)) {
         mult *= 2; // pull back in
       }
-      if (wordStatus(this.g, this.p, n.to) === 'unseen' && this.fresh.size >= this.maxNew) continue;
+      // The new-word budget counts words actually being learned (missed and shown), not words
+      // the player turned out to know already: those should flow freely.
+      if (wordStatus(this.g, this.p, n.to) === 'unseen' && this.learned.size >= this.maxNew) continue;
       const key = edgeKey(n.type, w, n.to);
       const weight = this.linkWeight(key) * mult;
       if (weight <= 0) continue;
       cands.push({ weight, make: () => this.makeMove(n.type, w, n.to, this.optionCount(key), jumped) });
     }
 
+    // Just arrived at a theme word that is not solid: usually ask about it (two times in three)
+    // before moving on, so each move is followed up and the word can be settled.
+    const stayCands = cands.slice(0, stayCount);
+    const moveTotal = cands.slice(stayCount).reduce((a, c) => a + c.weight, 0);
+    const stayTotal = stayCands.reduce((a, c) => a + c.weight, 0);
+    if (this.lastStay !== w && inTheme(w) && wordStatus(this.g, this.p, w) !== 'solid' && stayTotal > 0 && stayTotal < 2 * moveTotal) {
+      const k = (2 * moveTotal) / stayTotal;
+      for (const c of stayCands) c.weight *= k;
+    }
+
     // Try candidates in weighted order until one can be built (some lack enough distractors).
     let pool = cands.filter((c) => c.weight > 0.05);
     if (pool.length === 0 && !jumped) return this.jump();
+    // Nothing near needs work (only solid links around) while the theme still has words that do:
+    // usually jump there rather than circle through known words.
+    const best = Math.max(...pool.map((c) => c.weight));
+    if (!jumped && best <= BOX_WEIGHT[SOLID] * STAY_BOOST && this.o.rng() < 0.6 && this.unsettled() > 0) return this.jump();
     if (pool.length === 0) pool = cands;
     while (pool.length > 0) {
       const pick = this.weighted(pool, pool.map((c) => c.weight));
@@ -282,9 +346,11 @@ export class Session {
   private jump(): Question {
     const recent = new Set([...this.visited.slice(-3), this.current]);
     const words = [...this.themeWords].filter((w) => !recent.has(w));
+    const roll = this.onARoll();
     const weights = words.map((w) => {
       const keys = this.g.ownLinks(w);
-      return Math.max(...keys.map((k) => this.linkWeight(k)));
+      const fresh = roll && wordStatus(this.g, this.p, w) === 'unseen' ? ROLL_NEW : 1;
+      return Math.max(...keys.map((k) => this.linkWeight(k))) * fresh;
     });
     this.current = words.length ? this.weighted(words, weights) : this.current;
     this.lastStay = null;
@@ -366,39 +432,70 @@ export class Session {
     const hard = type !== 'rel' && (this.p.links[edgeKey(type, w, t)]?.box ?? 0) >= SOLID
       ? (d: WordId) => this.g.sharesTheme(w, d)
       : null;
-    const distractors = this.pickDistractors(ok, n - 1, hard, t);
+    // Close calls for 関: words from the same area (言葉 for 書く) make the player think about
+    // the meaning, rather than rule out what looks far away.
+    const close = type === 'rel' ? (d: WordId) => this.g.sharesCategory(w, d) || this.g.sharesCategory(t, d) : null;
+    const distractors = this.pickDistractors(ok, n - 1, hard, t, close);
     if (distractors.length === 0) return null;
     const options = [this.wordOption(t, true), ...distractors.map((d) => this.wordOption(d, false))];
     return { q: type, word: w, target: t, key: edgeKey(type, w, t), options: shuffle(options, this.o.rng), check: false, jump };
   }
 
   /**
-   * Up to n words passing `ok`, taken from `prefer` first when given. Two distractors never share a meaning.
-   * Preferred words are few (a theme's neighbours), so they are checked in full; the rest of the
-   * dictionary is sampled at random until enough pass, rather than filtering every word.
+   * Up to n words passing `ok`. Two distractors never share a meaning. In order of preference:
+   * - when the answer is a word the player has seen, other words they have seen: if only the answer
+   *   looked familiar, "pick the one I recognise" would win without knowing anything;
+   * - words passing `near` (a theme's neighbours, few enough to check in full);
+   * - words passing `close` (a whole category, too many to list), found by sampling;
+   * - any word, sampled at the answer's level: an N1 word among N5 options gives itself away.
    */
-  private pickDistractors(ok: (d: WordId) => boolean, n: number, prefer: ((d: WordId) => boolean) | null, like?: WordId): WordId[] {
+  private pickDistractors(
+    ok: (d: WordId) => boolean,
+    n: number,
+    near: ((d: WordId) => boolean) | null,
+    like?: WordId,
+    close: ((d: WordId) => boolean) | null = null,
+  ): WordId[] {
     const out: WordId[] = [];
     const take = (d: WordId) => {
       if (out.length < n && !out.includes(d) && ok(d) && !out.some((x) => this.enOverlap(x, d))) out.push(d);
     };
-    if (prefer) {
-      const near = new Set<WordId>();
-      for (const t of this.g.themeList) if (t.words.some((w) => prefer(w))) for (const w of t.words) if (prefer(w)) near.add(w);
-      for (const d of shuffle([...near], this.o.rng)) take(d);
-    }
-    // Wrong options at the answer's level: an N1 word among N5 options gives itself away.
-    const all = this.allWords ??= [...this.g.words.keys()];
     const level = (w: WordId) => this.g.word(w).jlpt ?? 1;
     const target = like ? level(like) : null;
+    const levelOk = (d: WordId) => target === null || this.o.rng() <= (LEVEL_ACCEPT[Math.abs(level(d) - target)] ?? 0.05);
+
+    if (like && wordStatus(this.g, this.p, like) !== 'unseen') {
+      const seen = shuffle(this.seenWords(), this.o.rng);
+      const pref = near ?? close;
+      if (pref) for (const d of seen) { if (out.length >= n) break; if (pref(d)) take(d); }
+      for (const d of seen) { if (out.length >= n) break; if (levelOk(d)) take(d); }
+    }
+    if (near) {
+      const set = new Set<WordId>();
+      for (const t of this.g.themeList) if (t.words.some((w) => near(w))) for (const w of t.words) if (near(w)) set.add(w);
+      for (const d of shuffle([...set], this.o.rng)) take(d);
+    }
+    const all = this.allWords ??= [...this.g.words.keys()];
     for (let tries = 0; out.length < n && tries < 600; tries++) {
       const d = all[Math.floor(this.o.rng() * all.length)];
-      const gap = target === null ? 0 : Math.abs(level(d) - target);
-      if (tries < 450 && this.o.rng() > (LEVEL_ACCEPT[gap] ?? 0.05)) continue;
+      if (tries < 450 && !levelOk(d)) continue;
+      if (close && tries < 300 && !close(d)) continue;
       take(d);
     }
     return out;
   }
+
+  /** Words the player has met (their meaning has a record), refreshed as the run goes. */
+  private seenWords(): WordId[] {
+    const step = this.history.length;
+    if (this.seenCache?.step !== step) {
+      const words = Object.keys(this.p.links).filter((k) => k.startsWith('m:')).map((k) => k.slice(2)).filter((w) => this.g.words.has(w));
+      this.seenCache = { step, words };
+    }
+    return this.seenCache.words;
+  }
+
+  private seenCache: { step: number; words: WordId[] } | null = null;
 
   private allWords: WordId[] | null = null;
 

@@ -2,6 +2,7 @@
 // reasonable number of runs, without the same word coming back over and over?
 // Run with `npm run simulate` to see the table.
 
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import sample from '../src/data/sample.json';
 import { Graph, type LinkKey } from '../src/lib/graph';
@@ -10,7 +11,8 @@ import { emptyProgress, mastery } from '../src/lib/progress';
 import { Session } from '../src/lib/session';
 import type { Dataset, ThemeId } from '../src/lib/types';
 
-const g = new Graph(sample as Dataset);
+const sampleGraph = new Graph(sample as Dataset);
+const DATA = 'public/data/dataset.json';
 /** Questions per run, as in the app's default (about two minutes). */
 const RUN = 20;
 
@@ -31,7 +33,7 @@ const LEARNERS: Learner[] = [
   { name: 'beginner', knows: { 5: 0.6, 4: 0.3, 3: 0.1, 2: 0.02, 1: 0, 0: 0 }, learnMiss: 0.35, learnHit: 0.1, keep: 0.95 },
 ];
 
-function simulate(l: Learner, theme: ThemeId, runs: number, seed: number) {
+function simulate(l: Learner, theme: ThemeId, runs: number, seed: number, g: Graph = sampleGraph) {
   const rng = seeded(seed);
   const p = emptyProgress();
   const know = new Map<LinkKey, number>();
@@ -89,6 +91,7 @@ function simulate(l: Learner, theme: ThemeId, runs: number, seed: number) {
 }
 
 describe('simulated learners', () => {
+  const g = sampleGraph;
   for (const l of LEARNERS) {
     for (const theme of ['infosec', 'incident']) {
       it(`${l.name} makes steady progress in ${theme}`, () => {
@@ -113,4 +116,18 @@ describe('simulated learners', () => {
       });
     }
   }
+});
+
+// The real data: someone who already knows N5 should not be held back on it.
+describe.runIf(existsSync(DATA))('simulated learners on the real dataset', () => {
+  const real = new Graph(JSON.parse(readFileSync(DATA, 'utf8')) as Dataset);
+  it('an advanced learner masters an N5 theme they already know within about a week of runs', () => {
+    const advanced = LEARNERS.find((l) => l.name === 'advanced')!;
+    for (const theme of ['n5-verbs-1', 'n5-nouns-1']) {
+      const rows = simulate(advanced, theme, 12, 42, real);
+      const at = rows.find((r) => r.mastery >= 80)?.run ?? Infinity;
+      if (process.env.SHOW_SIM) console.log(theme, 'mastery by run:', rows.map((r) => r.mastery).join(' '));
+      expect(at).toBeLessThanOrEqual(10);
+    }
+  });
 });

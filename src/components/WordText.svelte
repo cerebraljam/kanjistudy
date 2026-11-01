@@ -1,10 +1,11 @@
 <script lang="ts">
   // A Japanese word, with furigana (or romaji) above it when given.
   // The furigana line is always reserved, so the word never shifts when it appears or disappears.
-  let { text, ruby = null, size = 22, weight = 500 }: { text: string; ruby?: string | null; size?: number; weight?: number } = $props();
+  // `size` is in px, or any CSS length (the play screen scales its word with the screen height).
+  let { text, ruby = null, size = 22, weight = 500 }: { text: string; ruby?: string | null; size?: number | string; weight?: number } = $props();
 </script>
 
-<ruby class="jp" style:font-size="{size}px" style:font-weight={weight}>{text}<rt class:empty={!ruby} aria-hidden={!ruby}>{ruby || ' '}</rt></ruby>
+<ruby class="jp" style:font-size={typeof size === 'number' ? `${size}px` : size} style:font-weight={weight}>{text}<rt class:empty={!ruby} aria-hidden={!ruby}>{ruby || ' '}</rt></ruby>
 
 <style>
   ruby { line-height: 1.15; }

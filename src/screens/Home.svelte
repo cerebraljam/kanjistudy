@@ -3,7 +3,7 @@
   import { levelLabel, pct } from '../lib/display';
   import { mastery, wordStatus, wordsToMaster } from '../lib/progress';
   import { href } from '../lib/router.svelte';
-  import type { Theme } from '../lib/types';
+  import { CATEGORIES, type Theme } from '../lib/types';
   import Icon from '../components/Icon.svelte';
 
   const g = app.graph;
@@ -29,14 +29,23 @@
   const easiest = [...stats].filter((s) => s.left > 0).sort((a, b) => avgLevel(b.theme) - avgLevel(a.theme))[0];
   const current = last ?? easiest;
 
-  // Started themes closest to mastered first; then, to fill the list, the easiest themes not started yet.
-  const started = stats
+  // Started themes, closest to mastered first.
+  const almost = stats
     .filter((s) => s !== current && s.left > 0 && s.started)
-    .sort((a, b) => a.left - b.left || b.mastery - a.mastery);
-  const fresh = stats
-    .filter((s) => s !== current && s.left > 0 && !s.started)
-    .sort((a, b) => avgLevel(b.theme) - avgLevel(a.theme) || b.theme.words.length - a.theme.words.length);
-  const almost = [...started, ...fresh].slice(0, 3);
+    .sort((a, b) => a.left - b.left || b.mastery - a.mastery)
+    .slice(0, 3);
+  // New ground: the easiest theme not started yet in each category, so the list shows variety
+  // instead of several parts of one theme (N5の名詞 1, 2, 4).
+  const family = (t: Theme) => t.id.replace(/-\d+$/, '');
+  const startedFamilies = new Set(stats.filter((s) => s.started || s === current).map((s) => family(s.theme)));
+  const fresh = CATEGORIES.map((c) =>
+    stats
+      .filter((s) => s !== current && s.left > 0 && !s.started && s.theme.category === c.id && !startedFamilies.has(family(s.theme)))
+      .sort((a, b) => avgLevel(b.theme) - avgLevel(a.theme) || b.theme.words.length - a.theme.words.length)[0],
+  )
+    .filter((s) => s !== undefined)
+    .sort((a, b) => avgLevel(b.theme) - avgLevel(a.theme));
+  const categoryName = (id?: string) => CATEGORIES.find((c) => c.id === id)?.en ?? '';
   const slipping = stats.filter((s) => s.best - s.mastery >= 0.1 && s !== current).slice(0, 2);
   const minutes = Math.max(1, Math.round((runLength * 6) / 60));
 </script>
@@ -69,14 +78,32 @@
   {#if almost.length > 0}
     <section class="section">
       <div class="section-head">
-        <h2>{started.length > 0 ? 'Almost there' : 'Good places to start'}</h2>
-        <span class="tiny muted">{started.length > 0 ? 'fewest words left first' : 'easiest first'}</span>
+        <h2>Almost there</h2>
+        <span class="tiny muted">fewest words left first</span>
       </div>
       {#each almost as s (s.theme.id)}
         <a class="row-card" href={href.theme(s.theme.id)}>
           <span class="grow">
             <span class="title"><span class="jp">{s.theme.jp}</span> <span class="en">{s.theme.en}</span></span>
-            <span class="small accent-text">+{s.left} {s.left === 1 ? 'word' : 'words'} to master{s.started ? '' : ' · not started'}</span>
+            <span class="small accent-text">+{s.left} {s.left === 1 ? 'word' : 'words'} to master</span>
+          </span>
+          <span class="tiny muted">{level(s.theme)}</span>
+        </a>
+      {/each}
+    </section>
+  {/if}
+
+  {#if fresh.length > 0}
+    <section class="section">
+      <div class="section-head">
+        <h2>{almost.length > 0 ? 'Something new' : 'Good places to start'}</h2>
+        <span class="tiny muted">easiest in each area</span>
+      </div>
+      {#each fresh as s (s.theme.id)}
+        <a class="row-card" href={href.theme(s.theme.id)}>
+          <span class="grow">
+            <span class="title"><span class="jp">{s.theme.jp}</span> <span class="en">{s.theme.en}</span></span>
+            <span class="small muted">{categoryName(s.theme.category)} · {s.theme.words.length} words</span>
           </span>
           <span class="tiny muted">{level(s.theme)}</span>
         </a>
