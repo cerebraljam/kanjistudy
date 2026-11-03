@@ -86,3 +86,19 @@ describe('session', () => {
     expect(sum.after).toBeGreaterThanOrEqual(0);
   });
 });
+
+describe('run summary for the end-of-run screen', () => {
+  it('records each answer and the solid words before and after', () => {
+    const p = emptyProgress();
+    const s = new Session(g, p, 'infosec', { length: 8, rng: seeded(4), now: () => 0 });
+    while (!s.done) {
+      s.answer(s.question!.options.find((o) => o.correct)!.id);
+      s.next();
+    }
+    const sum = s.summary();
+    expect(sum.results).toHaveLength(sum.asked);
+    expect(sum.results!.every(Boolean)).toBe(true);
+    expect(sum.solidBefore).toBe(0);
+    expect(sum.solidAfter).toBeGreaterThanOrEqual(0);
+  });
+});

@@ -8,6 +8,7 @@ import type { RunSummary } from './session';
 import type { Theme, ThemeId } from './types';
 
 export type Furigana = 'auto' | 'always' | 'never';
+export type Look = 'paper' | 'night' | 'arcade';
 
 export interface Settings {
   hiragana: boolean;
@@ -18,6 +19,8 @@ export interface Settings {
   runLength: number;
   autoAdvance: boolean;
   palette: 'green-red' | 'blue-orange';
+  /** Chosen on the first visit; null until then (the app follows the device's light/dark setting). */
+  look: Look | null;
 }
 
 export interface Save {
@@ -42,6 +45,7 @@ export const defaultSettings = (): Settings => ({
   runLength: 20,
   autoAdvance: true,
   palette: 'green-red',
+  look: null,
 });
 
 export const freshSave = (): Save => ({

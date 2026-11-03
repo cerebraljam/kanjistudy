@@ -4,6 +4,7 @@
   import { mastery, wordStatus, wordsToMaster } from '../lib/progress';
   import { href } from '../lib/router.svelte';
   import { CATEGORIES, type Theme } from '../lib/types';
+  import { levelFor } from '../lib/levels';
   import Icon from '../components/Icon.svelte';
 
   const g = app.graph;
@@ -22,6 +23,7 @@
 
   const solidWords = [...g.words.keys()].filter((w) => wordStatus(g, p, w) === 'solid').length;
   const mastered = stats.filter((s) => s.left === 0);
+  const lv = levelFor(solidWords);
 
   // Continue the last theme; on a first visit, suggest the easiest one.
   const avgLevel = (t: Theme) => t.words.reduce((a, w) => a + (g.word(w).jlpt ?? 1), 0) / t.words.length;
@@ -52,9 +54,16 @@
 
 <main class="screen">
   <header class="topbar">
+    <div class="level" role="img" aria-label="Level {lv.level}">
+      <span class="lv">Lv</span><span class="lv-num">{lv.level}</span>
+    </div>
     <div class="brand">
-      <h1 class="jp">言葉の鎖</h1>
-      <span class="small muted">{solidWords} words solid · {mastered.length} {mastered.length === 1 ? 'theme' : 'themes'} mastered</span>
+      <div class="brand-line">
+        <h1 class="jp">言葉の鎖</h1>
+        {#if lv.toNext > 0}<span class="tiny muted">{lv.toNext} to Lv {lv.level + 1}</span>{/if}
+      </div>
+      <span class="lv-track" aria-hidden="true"><span style:width="{lv.progress * 100}%"></span></span>
+      <span class="small muted">{solidWords} {solidWords === 1 ? 'word' : 'words'} solid · {mastered.length} mastered</span>
     </div>
     <a class="icon-btn" href={href.search()} aria-label="Find a theme"><Icon name="search" /></a>
     <a class="icon-btn edge-right" href={href.settings()} aria-label="Settings"><Icon name="sliders" /></a>
@@ -140,18 +149,43 @@
 </main>
 
 <style>
-  .brand { flex-grow: 1; display: flex; flex-direction: column; gap: 2px; padding-top: 8px; }
-  .brand h1 { font-size: 22px; }
+  .brand { flex-grow: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .brand-line { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .brand h1 { font-size: 20px; }
+  .level {
+    width: 48px; height: 48px; flex-shrink: 0; border-radius: 14px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
+    background: var(--accent-soft); color: var(--accent-ink);
+  }
+  .lv { font-size: 11px; font-weight: 600; }
+  .lv-num { font-size: 20px; font-weight: 700; }
+  .lv-track { height: 5px; border-radius: 3px; background: var(--line); display: flex; overflow: hidden; }
+  .lv-track span { background: var(--accent); }
+  :global([data-look='arcade']) .level { background: var(--accent); color: var(--on-primary); box-shadow: 0 4px 0 var(--primary-edge); }
+  :global([data-look='arcade']) .lv-num { font-weight: 800; }
+  :global([data-look='arcade']) .lv-track { height: 8px; border-radius: 4px; }
   .continue {
     display: flex; flex-direction: column; gap: 14px; padding: 18px;
-    border-radius: 18px; background: var(--ink); color: #fff; text-decoration: none;
+    border-radius: 18px; background: var(--primary); color: var(--on-primary); text-decoration: none;
   }
-  .continue:hover { color: #fff; background: #2a2d35; }
-  .dim { color: #c9cbd1; }
+  .continue:hover { color: var(--on-primary); background: var(--primary-hover); }
+  .dim { color: var(--on-primary-dim); }
+  /* Night: no big bright block. */
+  :global([data-look='night']) .continue { background: var(--accent-soft); color: var(--ink); }
+  :global([data-look='night']) .continue:hover { background: #2d3352; color: var(--ink); }
+  :global([data-look='night']) .continue .dim { color: var(--muted); }
+  :global([data-look='night']) .continue .track { background: var(--line-strong); }
+  :global([data-look='night']) .continue .track span { background: var(--accent); }
+  :global([data-look='night']) .continue .go { color: var(--accent-ink); }
+  /* Arcade: the Continue card is a cream playing card with a dark Play button. */
+  :global([data-look='arcade']) .continue { background: var(--card); color: var(--card-ink); border-radius: 22px; box-shadow: 0 6px 0 var(--tile-edge); }
+  :global([data-look='arcade']) .continue .dim { color: var(--card-muted); }
+  :global([data-look='arcade']) .continue .track span { background: #1f8a5b; }
+  :global([data-look='arcade']) .continue .go { padding: 10px 22px; border-radius: 14px; background: var(--card-ink); color: var(--card); box-shadow: 0 3px 0 #0d0b22; font-weight: 800; }
   .line { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .name { font-size: 20px; font-weight: 600; }
-  .track { height: 6px; border-radius: 3px; background: #3a3d45; display: flex; overflow: hidden; }
-  .track span { background: #fff; }
+  .track { height: 6px; border-radius: 3px; background: var(--primary-track); display: flex; overflow: hidden; }
+  .track span { background: var(--on-primary); }
   .go { font-weight: 600; }
   .bottom { margin-top: auto; }
   .pills { display: flex; flex-wrap: wrap; gap: 8px; }

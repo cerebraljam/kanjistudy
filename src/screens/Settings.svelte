@@ -4,7 +4,9 @@
   import { wordStatus } from '../lib/progress';
   import { href } from '../lib/router.svelte';
   import { exportSave, importSave, type Furigana } from '../lib/storage';
+  import { deviceLook } from '../lib/look';
   import Icon from '../components/Icon.svelte';
+  import LookPicker from '../components/LookPicker.svelte';
   import WordText from '../components/WordText.svelte';
 
   const s = $derived(app.save.settings);
@@ -78,6 +80,11 @@
     <a class="icon-btn edge-left" href={href.home()} aria-label="Back to home"><Icon name="back" /></a>
     <h1>Settings</h1>
   </header>
+
+  <section class="section">
+    <h2 class="label">Look</h2>
+    <LookPicker value={s.look ?? deviceLook()} device={deviceLook()} onpick={(l) => set('look', l)} />
+  </section>
 
   <section class="section">
     <h2 class="label">I can read</h2>

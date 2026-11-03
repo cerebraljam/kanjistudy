@@ -129,7 +129,7 @@
   .sw.unseen { border: 1.5px dashed var(--muted); }
   .words { display: flex; flex-wrap: wrap; gap: 8px; }
   .word { font-size: 15px; padding: 6px 10px; border-radius: 10px; cursor: pointer; min-height: 36px; }
-  .word.solid { background: var(--ink); color: #fff; border: 1.5px solid var(--ink); }
+  .word.solid { background: var(--primary); color: var(--on-primary); border: 1.5px solid var(--primary); }
   .word.shaky { background: var(--bg); color: var(--shaky); border: 1.5px solid var(--shaky); }
   .word.unseen { background: var(--bg); color: var(--muted); border: 1.5px dashed var(--muted); }
   .detail { padding: 10px 12px; background: var(--soft); border-radius: 10px; }

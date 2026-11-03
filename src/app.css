@@ -13,19 +13,120 @@
   --right-bg: #eaf5ee;
   --wrong: #c0392b;
   --wrong-bg: #fbecea;
+  /* Primary buttons and the Continue card. */
+  --primary: var(--ink);
+  --primary-hover: #2a2d35;
+  --on-primary: #ffffff;
+  --on-primary-dim: #c9cbd1;
+  --primary-track: #3a3d45;
+  /* Answer tiles. Arcade gives them a bottom edge so they read as keys. */
+  --tile: var(--bg);
+  --tile-edge: transparent;
+  --tile-lift: 0px;
+  --tile-border: 1.5px;
+  --switch-off: #c9cbd1;
+  --knob: #ffffff;
+  --segmented-bg: #f2f2ef;
+  --segmented-on: #ffffff;
   --radius: 14px;
+  --word-weight: 500;
   --jp: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
-  font-family: Inter, 'Noto Sans JP', system-ui, sans-serif;
+  --ui: Inter, 'Noto Sans JP', system-ui, sans-serif;
+  font-family: var(--ui);
   color: var(--ink);
   background: var(--bg);
+  color-scheme: light;
   -webkit-text-size-adjust: 100%;
 }
 
+/* Night: dark grey, not black, with soft off-white text: easy on the eyes in a dark room. */
+:root[data-look='night'] {
+  --bg: #15171c;
+  --ink: #e7e8eb;
+  --muted: #a0a5ae;
+  --line: #272a32;
+  --line-strong: #3b404a;
+  --soft: #1d2027;
+  --accent: #9aa6ff;
+  --accent-ink: #b8c0ff;
+  --accent-soft: #252a45;
+  --shaky: #f0a35e;
+  --right: #5cc98f;
+  --right-bg: #16291f;
+  --wrong: #ff8a7d;
+  --wrong-bg: #33201e;
+  --primary: #9aa6ff;
+  --primary-hover: #b0baff;
+  --on-primary: #15171c;
+  --on-primary-dim: #3a4170;
+  --primary-track: #7884d6;
+  --tile: #1a1d23;
+  --switch-off: #3b404a;
+  --knob: #e7e8eb;
+  --segmented-bg: #1d2027;
+  --segmented-on: #2c3039;
+  color-scheme: dark;
+}
+
+/* Arcade: an indigo game board, pressable tiles, amber for combos and levels, cards in cream. */
+:root[data-look='arcade'] {
+  --bg: #1e1b45;
+  --ink: #f5f2ff;
+  --muted: #bdb6e8;
+  --line: #38337a;
+  --line-strong: #4a44a0;
+  --soft: #2b2763;
+  --accent: #ffb84d;
+  --accent-ink: #ffcb7a;
+  --accent-soft: #3a3270;
+  --shaky: #ffb84d;
+  --right: #62e6a6;
+  --right-bg: #1f4a45;
+  --wrong: #ff8f80;
+  --wrong-bg: #4a2346;
+  --primary: #ffb84d;
+  --primary-hover: #ffc56b;
+  --on-primary: #1e1b45;
+  --on-primary-dim: #5a5390;
+  --primary-track: #e9dcc0;
+  --primary-edge: #b77a1f;
+  --tile: #2f2a6e;
+  --tile-edge: #141133;
+  --tile-lift: 4px;
+  --tile-border: 2px;
+  --switch-off: #4a44a0;
+  --knob: #f5f2ff;
+  --segmented-bg: #2b2763;
+  --segmented-on: #4a44a0;
+  --card: #fff5e1;
+  --card-ink: #1e1b45;
+  --card-muted: #5a5390;
+  --seal: #d8432f;
+  --radius: 16px;
+  --word-weight: 700;
+  --jp: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;
+  --ui: Nunito, 'M PLUS Rounded 1c', system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+/* Right/wrong in blue and orange, tuned for each look. */
 :root[data-palette='blue-orange'] {
   --right: #1f5fbf;
   --right-bg: #eaf0fa;
   --wrong: #a64d00;
   --wrong-bg: #fcf1e6;
+}
+:root[data-palette='blue-orange'][data-look='night'] {
+  --right: #7fb0ff;
+  --right-bg: #18243a;
+  --wrong: #f0a35e;
+  --wrong-bg: #33241a;
+}
+:root[data-palette='blue-orange'][data-look='arcade'] {
+  --right: #7fc4ff;
+  --right-bg: #23406e;
+  --wrong: #ffb36b;
+  --wrong-bg: #4d3049;
 }
 
 * { box-sizing: border-box; }
@@ -34,6 +135,8 @@ h1, h2, p { margin: 0; }
 a { color: var(--accent); }
 a:hover { color: var(--accent-ink); }
 button { font: inherit; color: inherit; }
+/* Arcade's red seal for question types. */
+[data-look='arcade'] .glyph { background: var(--seal); color: var(--card); font-weight: 800; border-radius: 7px; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .jp { font-family: var(--jp); }
@@ -70,8 +173,11 @@ button { font: inherit; color: inherit; }
   font-size: 16px; font-weight: 500; text-decoration: none; cursor: pointer;
 }
 .btn:hover { color: var(--ink); background: var(--soft); }
-.btn.primary { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600; }
-.btn.primary:hover { background: #2a2d35; color: #fff; }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600; }
+.btn.primary:hover { background: var(--primary-hover); color: var(--on-primary); }
+[data-look='arcade'] .btn { font-weight: 700; }
+[data-look='arcade'] .btn.primary { box-shadow: 0 4px 0 var(--primary-edge); font-weight: 800; }
+[data-look='arcade'] .btn.primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--primary-edge); }
 .btn.small { height: 44px; font-size: 15px; }
 .btn.block { width: 100%; }
 .btn:disabled { opacity: 0.5; cursor: default; }
@@ -91,6 +197,8 @@ button { font: inherit; color: inherit; }
   color: var(--ink); text-decoration: none; background: var(--bg);
 }
 a.row-card:hover { border-color: var(--line-strong); color: var(--ink); }
+[data-look='arcade'] .row-card { background: var(--soft); border-color: transparent; box-shadow: 0 4px 0 var(--tile-edge); }
+[data-look='arcade'] a.row-card:hover { border-color: var(--line-strong); }
 .row-card .grow { flex-grow: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .row-card .title { font-size: 15px; font-weight: 500; }
 .row-card .title .en { font-weight: 400; color: var(--muted); }
@@ -122,26 +230,27 @@ a.row-card:hover { border-color: var(--line-strong); color: var(--ink); }
 @media (hover: hover) and (pointer: fine) {
   .key {
     display: inline-block; position: absolute; top: 6px; left: 8px;
-    font-size: 11px; color: var(--muted); font-family: Inter, sans-serif;
+    font-size: 11px; color: var(--muted); font-family: var(--ui);
   }
 }
 
 .switch {
   width: 52px; height: 32px; border-radius: 16px; border: 0; padding: 3px;
-  background: #c9cbd1; display: flex; justify-content: flex-start; cursor: pointer; flex-shrink: 0;
+  background: var(--switch-off); display: flex; justify-content: flex-start; cursor: pointer; flex-shrink: 0;
 }
 .switch[aria-checked='true'] { background: var(--accent); justify-content: flex-end; }
-.switch::after { content: ''; width: 26px; height: 26px; border-radius: 13px; background: #fff; }
+.switch::after { content: ''; width: 26px; height: 26px; border-radius: 13px; background: var(--knob); }
+[data-look='night'] .switch[aria-checked='true']::after { background: var(--bg); }
 
 .segmented {
   display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
-  gap: 4px; padding: 4px; border-radius: 12px; background: #f2f2ef;
+  gap: 4px; padding: 4px; border-radius: 12px; background: var(--segmented-bg);
 }
 .segmented button {
   height: 40px; border: 0; border-radius: 9px; background: transparent;
   color: var(--muted); font-size: 14px; font-weight: 500; cursor: pointer;
 }
-.segmented button[aria-pressed='true'] { background: #fff; color: var(--ink); font-weight: 600; }
+.segmented button[aria-pressed='true'] { background: var(--segmented-on); color: var(--ink); font-weight: 600; }
 
 .setting-row { display: flex; align-items: center; gap: 12px; min-height: 52px; border-bottom: 1px solid var(--line); }
 .setting-row .grow { flex-grow: 1; display: flex; flex-direction: column; }

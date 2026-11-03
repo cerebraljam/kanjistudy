@@ -7,9 +7,15 @@
   import Settings from './screens/Settings.svelte';
   import Summary from './screens/Summary.svelte';
   import Theme from './screens/Theme.svelte';
+  import Welcome from './screens/Welcome.svelte';
+  import { applyLook } from './lib/look';
 
   $effect(() => {
     document.documentElement.dataset.palette = app.save.settings.palette;
+  });
+  $effect(() => {
+    // Until a look is picked, Welcome previews looks itself; afterwards the saved one applies.
+    if (app.save.settings.look) applyLook(app.save.settings.look);
   });
   loadData();
 
@@ -22,6 +28,8 @@
   <main class="screen"><p role="alert">{app.error}</p></main>
 {:else if !app.ready}
   <main class="screen loading" aria-busy="true"><span class="jp">言葉の鎖</span><span class="small muted">Loading words…</span></main>
+{:else if !app.save.settings.look}
+  <Welcome />
 {:else}
 {#key key}
   {#if r.name === 'play'}

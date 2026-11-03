@@ -188,5 +188,5 @@
     flex-shrink: 0; height: 40px; padding: 0 12px; border-radius: 999px;
     border: 1.5px solid var(--line-strong); background: var(--bg); cursor: pointer; white-space: nowrap;
   }
-  .tabs button[aria-selected='true'] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .tabs button[aria-selected='true'] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 </style>

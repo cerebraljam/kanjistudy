@@ -44,6 +44,9 @@
   .ends.fork { border-left: 1.5px solid var(--line-strong); padding-left: 10px; }
   .wrong { color: var(--wrong); padding-top: 2px; }
   .right { color: var(--right); font-weight: 500; padding-top: 2px; }
+  /* Arcade: chain links as small pills. */
+  :global([data-look='arcade']) .from { padding: 1px 8px; border-radius: 8px; background: var(--soft); font-weight: 700; }
+  :global([data-look='arcade']) .right { padding: 1px 8px; border-radius: 8px; background: var(--right-bg); font-weight: 700; align-self: flex-start; }
   /* Short screens (a tablet in landscape) keep only the latest step, leaving room for the options. */
   @media (max-height: 760px) {
     .trail { height: 84px; }

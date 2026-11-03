@@ -46,6 +46,8 @@
       count: `${Math.min(done, session.length)} / ${session.length}`,
       pct: Math.min(1, done / session.length),
       chain: session.chain,
+      results: session.history.map((h) => h.correct),
+      rolling: session.rolling,
       wordSize: `min(${w.jp.length > 4 ? 44 : w.jp.length > 3 ? 50 : 60}px, 8dvh)`,
     };
   });
@@ -121,8 +123,14 @@
         <div class="bar thin" role="progressbar" aria-valuenow={Math.round(view.pct * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="Run progress">
           <span class="done" style:width="{view.pct * 100}%"></span>
         </div>
+        <!-- Arcade's stage bar: one segment per question, green or red once answered. -->
+        <div class="segments" aria-hidden="true" style:grid-template-columns="repeat({session.length}, minmax(0, 1fr))">
+          {#each Array.from({ length: session.length }) as _, i}
+            <span class:right={view.results[i] === true} class:wrong={view.results[i] === false} class:now={i === view.results.length}></span>
+          {/each}
+        </div>
       </div>
-      <div class="chain small" title="Right answers in a row">連鎖 {view.chain}</div>
+      <div class="chain small" class:hot={view.rolling} title="Right answers in a row">連鎖 <span class="x">×</span>{view.chain}</div>
     </header>
 
     <Trail entries={view.trail} graph={g} />
@@ -161,8 +169,11 @@
       <section class="stage">
         <div class="word-block">
           {#if view.q.jump}<span class="tiny muted">New chain</span>{/if}
-          <WordText text={view.word.jp} ruby={view.ruby} size={view.wordSize} />
-          <div class="reveal small muted">{view.reveal}</div>
+          <div class="card">
+            <span class="seal" aria-hidden="true">{view.meta.glyph}</span>
+            <WordText text={view.word.jp} ruby={view.ruby} size={view.wordSize} />
+            <div class="reveal small muted">{view.reveal}</div>
+          </div>
         </div>
         <div class="prompt">
           <span class="glyph" aria-hidden="true">{view.meta.glyph}</span>
@@ -198,6 +209,10 @@
       <footer class="foot">
         {#if answered && (!answered.correct || !settings.autoAdvance)}
           <button class="btn primary block" onclick={next}>{nextLabel}</button>
+        {:else if answered?.settled}
+          <p class="center"><span class="chip gain">+1 solid · <span class="jp">{g.word(answered.settled).jp}</span></span></p>
+        {:else if !answered && view.rolling}
+          <p class="center"><span class="chip roll">On a roll · known words count faster</span></p>
         {:else if !answered}
           <p class="small muted center">Pick one. Right answers move on by themselves.</p>
         {/if}
@@ -212,6 +227,40 @@
   .progress { flex-grow: 1; display: flex; flex-direction: column; gap: 6px; }
   .meta { display: flex; justify-content: space-between; }
   .chain { min-width: 52px; text-align: right; font-weight: 600; color: var(--accent); font-family: var(--jp); }
+  .chain .x { display: none; }
+  .segments { display: none; gap: 3px; }
+  .segments span { height: 8px; border-radius: 3px; background: var(--line); }
+  .segments .right { background: var(--right); }
+  .segments .wrong { background: var(--wrong); }
+  .segments .now { background: var(--accent); }
+  .card { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
+  .seal { display: none; }
+  .chip { display: inline-block; padding: 7px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; }
+  .chip.gain { background: var(--right-bg); color: var(--right); }
+  .chip.roll { background: var(--accent-soft); color: var(--accent-ink); font-size: 13px; }
+
+  /* Arcade: stage bar, combo badge, the word on a cream card with a seal, keys for answers. */
+  :global([data-look='arcade']) .play .bar.thin { display: none; }
+  :global([data-look='arcade']) .segments { display: grid; }
+  :global([data-look='arcade']) .chain {
+    display: flex; align-items: center; justify-content: center; gap: 1px; min-width: 60px; padding: 6px 10px;
+    border-radius: 999px; background: var(--accent); color: var(--on-primary); font-weight: 800; font-size: 14px;
+    box-shadow: 0 3px 0 var(--primary-edge);
+  }
+  :global([data-look='arcade']) .chain .x { display: inline; margin-left: 4px; }
+  :global([data-look='arcade']) .chain.hot { background: #ffd27f; }
+  :global([data-look='arcade']) .card {
+    width: 100%; padding: clamp(14px, 3dvh, 26px) 20px clamp(10px, 2dvh, 18px); border-radius: 22px;
+    background: var(--card); color: var(--card-ink); box-shadow: 0 6px 0 var(--tile-edge);
+  }
+  :global([data-look='arcade']) .card .reveal { color: var(--card-muted); }
+  :global([data-look='arcade']) .card :global(rt) { color: var(--card-muted); }
+  :global([data-look='arcade']) .seal {
+    display: flex; position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 6px;
+    align-items: center; justify-content: center; transform: rotate(-6deg);
+    background: var(--seal); color: var(--card); font-family: var(--jp); font-weight: 800; font-size: 17px;
+  }
+  :global([data-look='arcade']) .chip { font-weight: 800; }
 
   /* Sizes follow the screen height, so six options fit on a short screen (a tablet in landscape) without scrolling. */
   .stage { flex-grow: 1; display: flex; flex-direction: column; gap: clamp(10px, 2.4dvh, 20px); padding: clamp(6px, 2dvh, 16px) 0; }
@@ -223,7 +272,8 @@
   /* Fixed height: answering adds a gloss line, and nothing on screen should move when it does. */
   .option {
     position: relative; height: clamp(64px, 11dvh, 92px); padding: 8px 10px; overflow: hidden;
-    border-radius: var(--radius); border: 1.5px solid var(--line-strong); background: var(--bg);
+    border-radius: var(--radius); border: var(--tile-border) solid var(--line-strong); background: var(--tile);
+    box-shadow: 0 var(--tile-lift) 0 var(--tile-edge); transition: transform 80ms, box-shadow 80ms;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
     text-align: center; cursor: pointer;
   }
@@ -242,6 +292,9 @@
     .option:hover:not(:disabled) { border-color: var(--ink); }
   }
   .option:disabled { cursor: default; }
+  /* Arcade keys go down when pressed. */
+  :global([data-look='arcade']) .option:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 var(--tile-edge); }
+  :global([data-look='arcade']) .option .label { font-weight: 700; }
   .option .label { font-size: 16px; font-weight: 500; }
   .option .sub {
     font-size: 12px; line-height: 1.3; color: var(--muted); max-width: 100%;

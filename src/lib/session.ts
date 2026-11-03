@@ -35,6 +35,8 @@ export interface Answered {
   correct: boolean;
   /** Set when the player missed a word they had never seen: show it before moving on. */
   peek?: WordId;
+  /** A word this answer made solid. */
+  settled?: WordId;
 }
 
 export interface RunSummary {
@@ -48,6 +50,11 @@ export interface RunSummary {
   missed: LinkKey[];
   before: number;
   after: number;
+  /** One entry per question, right or wrong, in order. */
+  results?: boolean[];
+  /** Solid words over the whole dataset before and after the run (for the level). */
+  solidBefore?: number;
+  solidAfter?: number;
 }
 
 export interface SessionOptions {
@@ -95,6 +102,7 @@ export class Session {
   private pendingCheck: { word: WordId; q: 'mean' | 'read' } | null = null;
   private lastStay: WordId | null = null;
   private readonly before: number;
+  private readonly solidBefore: number;
   private readonly startedAt: number;
   private readonly maxNew: number;
   private readonly now: () => number;
@@ -107,6 +115,7 @@ export class Session {
     this.now = o.now ?? Date.now;
     this.startedAt = this.now();
     this.before = mastery(g, p, theme);
+    this.solidBefore = this.countSolid();
     this.current = this.pickStart();
     this.question = this.build(false);
   }
@@ -123,6 +132,8 @@ export class Session {
     const correct = picked.correct;
     const learn = q.target ?? q.word;
     const wasUnseen = wordStatus(this.g, this.p, learn) === 'unseen';
+    const touched = q.target ? [q.word, q.target] : [q.word];
+    const solidBefore = touched.map((w) => wordStatus(this.g, this.p, w) === 'solid');
 
     // The two-choice check right after a new word is for learning, not measuring: a coin flip
     // would get it right half the time. A miss still counts.
@@ -170,7 +181,8 @@ export class Session {
       this.pendingCheck = { word: learn, q: q.q === 'read' ? 'read' : 'mean' };
     }
 
-    const entry: Answered = { question: q, picked, correct, peek };
+    const settled = touched.find((w, i) => !solidBefore[i] && wordStatus(this.g, this.p, w) === 'solid');
+    const entry: Answered = { question: q, picked, correct, peek, settled };
     this.history.push(entry);
     if (isMove(q.q) && q.target) {
       this.visited.push(q.word);
@@ -217,7 +229,21 @@ export class Session {
       missed,
       before: this.before,
       after: mastery(this.g, this.p, this.theme),
+      results: this.history.map((h) => h.correct),
+      solidBefore: this.solidBefore,
+      solidAfter: this.countSolid(),
     };
+  }
+
+  /** Whether the run is going well enough for known words to count faster (shown in the UI). */
+  get rolling(): boolean {
+    return this.onARoll();
+  }
+
+  private countSolid(): number {
+    let n = 0;
+    for (const w of this.g.words.keys()) if (wordStatus(this.g, this.p, w) === 'solid') n++;
+    return n;
   }
 
   private finish() {

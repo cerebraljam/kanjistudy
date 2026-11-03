@@ -2,6 +2,7 @@
   import { app } from '../lib/app.svelte';
   import { describeLink, pct } from '../lib/display';
   import { mastery, wordsToMaster } from '../lib/progress';
+  import { levelFor } from '../lib/levels';
   import { href } from '../lib/router.svelte';
 
   const g = app.graph;
@@ -12,6 +13,10 @@
   const minutes = run ? Math.floor(run.ms / 60000) : 0;
   const seconds = run ? Math.round((run.ms % 60000) / 1000) : 0;
   const delta = run ? Math.round((run.after - run.before) * 100) : 0;
+  // Level before and after the run (older saved runs have no counts).
+  const lvBefore = run?.solidBefore !== undefined ? levelFor(run.solidBefore).level : null;
+  const lvAfter = run?.solidAfter !== undefined ? levelFor(run.solidAfter) : null;
+  const gained = run?.solidBefore !== undefined && run.solidAfter !== undefined ? run.solidAfter - run.solidBefore : null;
 
   // Neighboring themes (sharing words) that are now closest to mastered.
   const nearby = $derived.by(() => {
@@ -39,6 +44,21 @@
       </p>
     </div>
 
+    {#if run.results}
+      <div class="run-strip" role="img" aria-label="{run.right} of {run.asked} right">
+        {#each run.results as ok, i (i)}<span class:ok></span>{/each}
+      </div>
+    {/if}
+
+    {#if lvAfter && lvBefore !== null && lvAfter.level > lvBefore}
+      <div class="level-up">
+        <span class="lv-badge">Lv {lvAfter.level}</span>
+        <span><b>Level up!</b> <span class="muted">Lv {lvBefore} → {lvAfter.level}</span></span>
+      </div>
+    {:else if lvAfter && lvAfter.toNext > 0}
+      <p class="small muted">Lv {lvAfter.level} · {lvAfter.toNext} {lvAfter.toNext === 1 ? 'word' : 'words'} to Lv {lvAfter.level + 1}</p>
+    {/if}
+
     <div class="section">
       <div class="bar" role="img" aria-label="Mastery {pct(run.after)}, was {pct(run.before)}">
         <span class="done" style:width="{Math.min(run.before, run.after) * 100}%"></span>
@@ -51,9 +71,13 @@
     </div>
 
     <div class="tiles">
-      <div class="tile"><span class="num">{run.right}/{run.asked}</span><span class="tiny muted">right</span></div>
+      {#if gained !== null}
+        <div class="tile"><span class="num gain-num">+{Math.max(0, gained)}</span><span class="tiny muted">words solid</span></div>
+      {:else}
+        <div class="tile"><span class="num">{run.right}/{run.asked}</span><span class="tiny muted">right</span></div>
+      {/if}
       <div class="tile"><span class="num">{run.learned.length}</span><span class="tiny muted">new {run.learned.length === 1 ? 'word' : 'words'}</span></div>
-      <div class="tile"><span class="num">{run.longest}</span><span class="tiny muted">longest chain</span></div>
+      <div class="tile"><span class="num chain-num">{run.longest}</span><span class="tiny muted">longest chain</span></div>
     </div>
 
     {#if run.missed.length > 0}
@@ -105,5 +129,16 @@
   .strong { font-weight: 500; }
   .end { margin-left: auto; }
   .reach { background: var(--accent-soft); border-color: transparent; }
+  .run-strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 3px; }
+  .run-strip span { height: 8px; border-radius: 3px; background: var(--wrong); }
+  .run-strip span.ok { background: var(--right); }
+  .level-up { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius); background: var(--accent-soft); }
+  .lv-badge { padding: 6px 10px; border-radius: 10px; background: var(--accent); color: var(--bg); font-weight: 700; }
+  .gain-num { color: var(--right); }
+  :global([data-look='arcade']) .tile { background: var(--soft); box-shadow: 0 4px 0 var(--tile-edge); text-align: center; align-items: center; }
+  :global([data-look='arcade']) .num { font-weight: 800; font-size: 28px; }
+  :global([data-look='arcade']) .chain-num { color: var(--accent); }
+  :global([data-look='arcade']) .lv-badge { color: var(--on-primary); box-shadow: 0 3px 0 var(--primary-edge); font-weight: 800; }
+  :global([data-look='arcade']) .bar .done { background: var(--right); }
   .actions { margin-top: auto; display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
 </style>

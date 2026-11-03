@@ -35,3 +35,17 @@ describe('storage', () => {
     expect(() => importSave(JSON.stringify({ schema: SCHEMA + 1 }))).toThrow(/newer version/);
   });
 });
+
+describe('look', () => {
+  it('is unset for saves made before looks existed, so the first-visit picker shows once', () => {
+    const old = { schema: 1, progress: { links: {}, step: 0, best: {} }, settings: { goal: 0.9 }, runs: [] };
+    const s = migrate(old);
+    expect(s.settings.look).toBeNull();
+    expect(s.settings.goal).toBe(0.9);
+  });
+
+  it('keeps a chosen look', () => {
+    const s = migrate({ schema: 1, settings: { look: 'arcade' } });
+    expect(s.settings.look).toBe('arcade');
+  });
+});
