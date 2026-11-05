@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
   import { app, save } from '../lib/app.svelte';
-  import { levelLabel, readingText, romajiUnder, rubyFor } from '../lib/display';
+  import { levelLabel, linkReason, readingText, romajiUnder, rubyFor } from '../lib/display';
   import { wordStatus } from '../lib/progress';
   import { href, replace } from '../lib/router.svelte';
   import { Session, type Answered, type Option } from '../lib/session';
@@ -39,8 +39,10 @@
     return {
       q,
       word: w,
+      // A spelling question shows the meaning: the word itself would be the answer.
+      text: q.q === 'read' && w.spell && !answered ? w.en[0] : w.jp,
       ruby: answered ? null : rubyFor(w, status, settings, q.q === 'read'),
-      reveal: answered ? [w.kana ? readingText(w.kana, settings) : '', w.en.slice(0, 2).join(', ')].filter(Boolean).join(' · ') : '',
+      reveal: answered ? [w.kana ? readingText(w.kana, settings) : '', w.en.slice(0, 2).join(/[a-z]/i.test(w.en[0]) ? ', ' : '、')].filter(Boolean).join(' · ') : '',
       meta: Q_META[q.q],
       trail: session.history.slice(-2),
       count: `${Math.min(done, session.length)} / ${session.length}`,
@@ -48,9 +50,16 @@
       chain: session.chain,
       results: session.history.map((h) => h.correct),
       rolling: session.rolling,
-      wordSize: `min(${w.jp.length > 4 ? 44 : w.jp.length > 3 ? 50 : 60}px, 8dvh)`,
+      wordSize: fit(w.jp, 60),
     };
   });
+
+  /** Font size for the word on the card: long English words get smaller, to fit a phone's width. */
+  function fit(text: string, max: number) {
+    const n = text.length;
+    if (/[a-z]/i.test(text)) return `min(${n > 11 ? 28 : n > 8 ? 34 : n > 5 ? 42 : 52}px, 8dvh, ${Math.round(150 / Math.max(6, n))}vw)`;
+    return `min(${n > 4 ? 44 : n > 3 ? 50 : max}px, 8dvh)`;
+  }
 
   function optionRuby(o: Option) {
     if (!view || !isMove(view.q.q) || answered) return null;
@@ -102,6 +111,10 @@
     answered && isMove(answered.question.q) ? `Continue from ${answered.question.options.find((o) => o.correct)!.label}` : 'Continue',
   );
   const peekWord = $derived(answered?.peek ? g.word(answered.peek) : null);
+  /** Why the right answer of a 関/同 question is linked to the word asked about. */
+  const reason = $derived(
+    answered && isMove(answered.question.q) ? linkReason(g, answered.question.word, answered.question.options.find((o) => o.correct)!.id, theme) : null,
+  );
 </script>
 
 <svelte:window {onkeydown} />
@@ -140,11 +153,11 @@
       <section class="stage peek" aria-label="New word">
         <div class="word-block">
           <span class="new-tag">New word</span>
-          <WordText text={peekWord.jp} size={56} />
+          <WordText text={peekWord.jp} size={/[a-z]/i.test(peekWord.jp) ? fit(peekWord.jp, 56) : 56} />
           {#if peekWord.kana && peekWord.kana !== peekWord.jp}
             <div class="peek-reading jp">{readingText(peekWord.kana, settings)}</div>
           {/if}
-          <div class="peek-meaning muted">{peekWord.en.join(', ')}</div>
+          <div class="peek-meaning muted">{peekWord.en.join(/[a-z]/i.test(peekWord.en[0]) ? ', ' : '、')}</div>
         </div>
         {#if isMove(answered.question.q) || peekWord.ex}
           <div class="peek-card">
@@ -154,6 +167,7 @@
                 <span class="glyph">{Q_META[answered.question.q].glyph}</span>
                 <span>{Q_META[answered.question.q].label} to <b class="jp">{from.jp}</b> {from.en[0]}</span>
               </div>
+              {#if reason}<p class="small muted">{reason}</p>{/if}
             {/if}
             {#if peekWord.ex}
               <p class="jp ex">{peekWord.ex.jp}</p>
@@ -171,7 +185,7 @@
           {#if view.q.jump}<span class="tiny muted">New chain</span>{/if}
           <div class="card">
             <span class="seal" aria-hidden="true">{view.meta.glyph}</span>
-            <WordText text={view.word.jp} ruby={view.ruby} size={view.wordSize} />
+            <WordText text={view.text} ruby={view.ruby} size={view.text === view.word.jp ? view.wordSize : 'min(44px, 8dvh)'} />
             <div class="reveal small muted">{view.reveal}</div>
           </div>
         </div>
@@ -189,6 +203,7 @@
             <button
               class="option {optionState(o)}"
               class:latin={/[a-z]/i.test(o.label)}
+              class:word={view.q.q !== 'mean'}
               disabled={!!answered}
               aria-label={answered ? `${o.label}, ${o.gloss}${o.correct ? ', correct' : o.id === answered.picked.id ? ', your answer, wrong' : ''}` : undefined}
               onclick={() => pick(o)}
@@ -197,7 +212,8 @@
               {#if /[a-z]/i.test(o.label)}
                 <span class="label">{o.label}</span>
               {:else}
-                <WordText text={o.label} {ruby} size={o.label.length > 4 ? 18 : 22} />
+                <!-- Ruby never wraps: long labels (Japanese meanings) get smaller to stay inside the button. -->
+                <WordText text={o.label} {ruby} size={o.label.length > 9 ? 14 : o.label.length > 6 ? 16 : o.label.length > 4 ? 18 : 22} />
               {/if}
               <!-- Always present, so the button keeps its size when the gloss appears. -->
               <span class="sub" class:empty={!answered && !ro}>{answered ? o.gloss : ro || '\u00a0'}</span>
@@ -208,6 +224,7 @@
       </section>
       <footer class="foot">
         {#if answered && (!answered.correct || !settings.autoAdvance)}
+          {#if reason && !peekWord}<p class="small muted center reason">{reason}</p>{/if}
           <button class="btn primary block" onclick={next}>{nextLabel}</button>
         {:else if answered?.settled}
           <p class="center"><span class="chip gain">+1 solid · <span class="jp">{g.word(answered.settled).jp}</span></span></p>
@@ -296,6 +313,8 @@
   :global([data-look='arcade']) .option:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 var(--tile-edge); }
   :global([data-look='arcade']) .option .label { font-weight: 700; }
   .option .label { font-size: 16px; font-weight: 500; }
+  /* English words as answers (studying English): words, not glosses. */
+  .option.word .label { font-size: 19px; color: inherit; }
   .option .sub {
     font-size: 12px; line-height: 1.3; color: var(--muted); max-width: 100%;
     display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -308,7 +327,8 @@
   .option.wrong :global(.jp), .option.wrong .label { text-decoration: line-through; }
   .option.dim { border-color: var(--line); color: var(--muted); }
 
-  .foot { min-height: clamp(56px, 9dvh, 76px); display: flex; align-items: center; padding-top: 12px; }
+  .foot { min-height: clamp(56px, 9dvh, 76px); display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 6px; padding-top: 12px; }
+  .reason { margin: 0; }
   .center { width: 100%; text-align: center; }
 
   .peek .word-block { gap: 8px; }

@@ -3,7 +3,8 @@
   // Two zoom levels only: tap a spot to zoom in on it, tap it again (or Zoom out) to come back,
   // tap elsewhere to move there. Dragging pans the close-up; there is no pinch or wheel zoom.
   import { onDestroy, onMount } from 'svelte';
-  import { app, AREA_THEME, loadMap, save, setAreaTheme } from '../lib/app.svelte';
+  import { app, AREA_THEME, loadMap, save, setAreaTheme, study } from '../lib/app.svelte';
+  import { levelName } from '../lib/display';
   import { levelFor } from '../lib/levels';
   import { mastery, wordStatus, type WordStatus } from '../lib/progress';
   import { go, href } from '../lib/router.svelte';
@@ -33,7 +34,7 @@
     if (s === 'shaky') l.shaky++;
     byLevel.set(w.jlpt ?? 0, l);
   }
-  const levels = [5, 4, 3, 2, 1, 0].map((l) => ({ name: l ? `N${l}` : 'Other', ...byLevel.get(l)! })).filter((l) => l.total);
+  const levels = [5, 4, 3, 2, 1, 0].map((l) => ({ name: levelName(l), ...byLevel.get(l)! })).filter((l) => l.total);
   const lv = levelFor(counts.solid);
   const pctOf = (n: number) => (all.length ? (n / all.length) * 100 : 0);
 
@@ -189,7 +190,8 @@
     // Labels: area names zoomed out; words near the center when zoomed in. Never overlapping.
     const placed: [number, number, number, number][] = [];
     const label = (text: string, jp: boolean, x: number, y: number, color: string, px: number, weight: number) => {
-      ctx.font = `${weight} ${px}px ${jp ? jpFont : uiFont}`;
+      // By the text, not the flag: studying English, the learner's labels are the Japanese ones.
+      ctx.font = `${weight} ${px}px ${jp || /[^\x00-\u024f]/.test(text) ? jpFont : uiFont}`;
       const w = ctx.measureText(text).width;
       const box: [number, number, number, number] = [x - w / 2 - 3, y - px / 2 - 2, x + w / 2 + 3, y + px / 2 + 2];
       if (box[0] < 0 || box[2] > size || box[1] < 0 || box[3] > size) return false;
@@ -311,9 +313,10 @@
   </section>
 
   <div class="segmented" role="group" aria-label="Map labels">
-    <button aria-pressed={labels === 'en'} onclick={() => setLabels('en')}>English</button>
+    <!-- "en" is the learner's language and "jp" the studied one: English and 日本語 swap when studying English. -->
+    <button aria-pressed={labels === 'en'} onclick={() => setLabels('en')} class:jp={study === 'en'}>{study === 'en' ? '日本語' : 'English'}</button>
     <button aria-pressed={labels === 'mix'} onclick={() => setLabels('mix')}>Mix</button>
-    <button aria-pressed={labels === 'jp'} onclick={() => setLabels('jp')} class="jp">日本語</button>
+    <button aria-pressed={labels === 'jp'} onclick={() => setLabels('jp')} class:jp={study === 'ja'}>{study === 'en' ? 'English' : '日本語'}</button>
   </div>
 
   <div class="map-box" bind:this={box}>
@@ -355,7 +358,7 @@
     </section>
   {:else}
     <section class="sheet">
-      <h2 class="label">By JLPT level</h2>
+      <h2 class="label">By {study === 'en' ? 'CEFR' : 'JLPT'} level</h2>
       <table class="levels">
         <tbody>
           {#each levels as l (l.name)}

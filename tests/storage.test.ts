@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defaultSettings, freshSave, importSave, load, migrate, persist, recoverable, SCHEMA, STORAGE_KEY, type Store } from '../src/lib/storage';
+import { defaultSettings, freshSave, importSave, load, loadStudy, migrate, persist, persistStudy, recoverable, saveKey, SCHEMA, STORAGE_KEY, type Store } from '../src/lib/storage';
 
 const memory = (init: Record<string, string> = {}): Store & { data: Record<string, string> } => {
   const data = { ...init };
@@ -56,12 +56,13 @@ describe('look', () => {
   });
 });
 
+const withProgress = () => {
+  const s = freshSave();
+  s.progress.links['m:x'] = { box: 3, n: 2, ok: 2, last: 5 };
+  return s;
+};
+
 describe('keeping progress safe', () => {
-  const withProgress = () => {
-    const s = freshSave();
-    s.progress.links['m:x'] = { box: 3, n: 2, ok: 2, last: 5 };
-    return s;
-  };
 
   it('offers an unreadable-then-fixed or set-aside copy for restoring', () => {
     const store = memory({ [`${STORAGE_KEY}.unreadable.1`]: JSON.stringify(withProgress()), [`${STORAGE_KEY}.unreadable.2`]: '{broken' });
@@ -87,5 +88,24 @@ describe('keeping progress safe', () => {
     const s = migrate({ ...withProgress(), backupAt: 123 });
     expect(s.backupAt).toBe(123);
     expect(migrate({ schema: SCHEMA }).backupAt).toBeNull();
+  });
+});
+
+describe('one save per language studied', () => {
+  it('keeps English progress apart from Japanese progress', () => {
+    const store = memory({});
+    expect(loadStudy(store)).toBe('ja');
+    persist(withProgress(), store, saveKey('ja'));
+    persist(freshSave(), store, saveKey('en'));
+    persistStudy('en', store);
+    expect(loadStudy(store)).toBe('en');
+    expect(Object.keys(load(store, saveKey('en')).progress.links)).toHaveLength(0);
+    expect(Object.keys(load(store, saveKey('ja')).progress.links).length).toBeGreaterThan(0);
+  });
+
+  it('never offers one language\'s copies to the other', () => {
+    const store = memory({ [`${STORAGE_KEY}.unreadable.1`]: JSON.stringify(withProgress()) });
+    expect(recoverable(store, saveKey('en'))).toHaveLength(0);
+    expect(recoverable(store, saveKey('ja'))).toHaveLength(1);
   });
 });

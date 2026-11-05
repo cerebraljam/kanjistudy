@@ -406,7 +406,8 @@ export class Session {
   private meaningLabel(w: WordId) {
     const short = (g: string) => (g.length > 28 ? g.replace(/\s*\(.*?\)\s*/g, ' ').trim() : g);
     const [a, b] = this.g.word(w).en.map(short);
-    return b && a.length + b.length <= 26 ? `${a}, ${b}` : a;
+    if (!b) return a;
+    return /[a-z]/i.test(a) ? (a.length + b.length <= 26 ? `${a}, ${b}` : a) : a.length + b.length <= 8 ? `${a}、${b}` : a;
   }
 
   private wordGloss(w: WordId) {
@@ -421,6 +422,15 @@ export class Session {
 
   private makeStay(q: 'mean' | 'read', w: WordId, n: number, check: boolean, jump: boolean): Question | null {
     const word = this.g.word(w);
+    if (q === 'read' && word.spell) {
+      const fakes = shuffle(word.spell, this.o.rng).slice(0, n - 1);
+      if (fakes.length === 0) return null;
+      const options: Option[] = [
+        { id: word.jp, label: word.jp, gloss: word.en[0], correct: true },
+        ...fakes.map((f) => ({ id: f, label: f, gloss: `not how ${word.jp} is spelled`, correct: false })),
+      ];
+      return { q, word: w, key: readingKey(w), options: shuffle(options, this.o.rng), check, jump };
+    }
     if (q === 'read') {
       if (!word.kana) return null;
       const fakes = fakeReadings(word.kana, n - 1, this.o.rng);

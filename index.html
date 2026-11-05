@@ -9,7 +9,7 @@
       // Keep in step with applyLook() in src/lib/look.ts.
       (function () {
         var d = document.documentElement, s = null;
-        try { s = JSON.parse(localStorage.getItem('kanjistudy') || 'null'); } catch (e) {}
+        try { s = JSON.parse(localStorage.getItem(localStorage.getItem('kanjistudy-study') === 'en' ? 'kanjistudy-en' : 'kanjistudy') || 'null'); } catch (e) {}
         var st = (s && s.settings) || {};
         var look = st.look || (matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'paper');
         d.dataset.look = look;

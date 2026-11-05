@@ -1,14 +1,20 @@
 // App-wide state: the save (progress, settings, custom themes) and the word graph.
 
+import { useStudy } from './display';
 import { Graph } from './graph';
-import { load, persist, recoverable, type Save } from './storage';
-import type { Dataset, Theme, WordId } from './types';
+import { load, loadStudy, persist, persistStudy, recoverable, saveKey, STORAGE_KEY, type Save } from './storage';
+import type { Dataset, Study, Theme, WordId } from './types';
 import { toWordMap, type WordMap, type WordMapFile } from './wordmap';
 
 // The dataset is its own file (public/data/dataset.json), so app updates do not re-download it
 // and data updates do not re-download the app. __DATA_VERSION__ changes when the file does.
-declare const __DATA_VERSION__: string;
-declare const __MAP_VERSION__: string;
+declare const __DATA_VERSION__: Record<Study, string>;
+declare const __MAP_VERSION__: Record<Study, string>;
+
+/** The language studied, chosen in Settings. Switching reloads the app with the other dataset and save. */
+export const study: Study = loadStudy();
+const KEY = saveKey(study);
+const file = (name: string) => (study === 'ja' ? `./data/${name}.json` : `./data/${name}-${study}.json`);
 
 export let dataset: Dataset = { version: 0, words: [], edges: [], themes: [] };
 let known = new Set<string>();
@@ -24,7 +30,13 @@ function buildGraph(custom: Theme[], area: Theme | null) {
 /** Id of the theme made from a map area: one slot, replaced each time. */
 export const AREA_THEME = 'map-area';
 
-const initial = load();
+const initial = load(localStorage, KEY);
+// A first visit to the other language keeps the look already chosen.
+if (study !== 'ja' && initial.settings.look === null) {
+  const other = load(localStorage, STORAGE_KEY).settings;
+  initial.settings.look = other.look;
+  initial.settings.palette = other.palette;
+}
 
 export const app = $state<{ save: Save; graph: Graph; ready: boolean; error: string; saveFailed: boolean }>({
   save: initial,
@@ -36,13 +48,14 @@ export const app = $state<{ save: Save; graph: Graph; ready: boolean; error: str
 });
 
 /** A copy with progress set aside earlier, offered when the current save is empty. */
-export const rescue = Object.keys(initial.progress.links).length === 0 ? (recoverable()[0] ?? null) : null;
+export const rescue = Object.keys(initial.progress.links).length === 0 ? (recoverable(localStorage, KEY)[0] ?? null) : null;
 
 export async function loadData() {
   try {
-    const res = await fetch(`./data/dataset.json?v=${__DATA_VERSION__}`);
+    const res = await fetch(`${file('dataset')}?v=${__DATA_VERSION__[study]}`);
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     dataset = (await res.json()) as Dataset;
+    useStudy(dataset);
     known = new Set(dataset.words.map((w) => w.id));
     rebuild();
     app.ready = true;
@@ -59,7 +72,7 @@ function rebuild() {
 
 /** Writes the save to localStorage. Call after every change. */
 export function save() {
-  app.saveFailed = !persist($state.snapshot(app.save) as Save);
+  app.saveFailed = !persist($state.snapshot(app.save) as Save, localStorage, KEY);
 }
 
 export function replaceSave(next: Save) {
@@ -91,7 +104,7 @@ export function setAreaTheme(words: WordId[], jp: string, en: string) {
 let mapPromise: Promise<WordMap> | null = null;
 /** The word positions, fetched the first time the map opens. */
 export function loadMap(): Promise<WordMap> {
-  return (mapPromise ??= fetch(`./data/map.json?v=${__MAP_VERSION__}`)
+  return (mapPromise ??= fetch(`${file('map')}?v=${__MAP_VERSION__[study]}`)
     .then((r) => {
       if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
       return r.json() as Promise<WordMapFile>;
@@ -101,6 +114,13 @@ export function loadMap(): Promise<WordMap> {
       mapPromise = null;
       throw e;
     }));
+}
+
+/** Studies the other language: its own words and its own progress. */
+export function switchStudy(next: Study) {
+  if (next === study) return;
+  persistStudy(next);
+  location.reload();
 }
 
 export const isCustom = (id: string) => app.save.customThemes.some((t) => t.id === id);

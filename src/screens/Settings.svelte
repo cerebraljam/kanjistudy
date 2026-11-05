@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { app, dataset, replaceSave, save } from '../lib/app.svelte';
+  import { app, dataset, replaceSave, save, study, switchStudy } from '../lib/app.svelte';
   import { downloadBackup } from '../lib/backup.svelte';
   import { rubyFor } from '../lib/display';
   import { wordStatus } from '../lib/progress';
@@ -80,10 +80,20 @@
   </header>
 
   <section class="section">
+    <h2 class="label" id="study">I am studying</h2>
+    <div class="segmented" role="group" aria-labelledby="study">
+      <button aria-pressed={study === 'ja'} onclick={() => switchStudy('ja')}>Japanese <span class="jp">日本語</span></button>
+      <button aria-pressed={study === 'en'} onclick={() => switchStudy('en')}>English <span class="jp">英語</span></button>
+    </div>
+    <p class="small muted">Each language keeps its own progress. English is a preview, with meanings in Japanese.</p>
+  </section>
+
+  <section class="section">
     <h2 class="label">Look</h2>
     <LookPicker value={s.look ?? deviceLook()} device={deviceLook()} onpick={(l) => set('look', l)} />
   </section>
 
+  {#if study === 'ja'}
   <section class="section">
     <h2 class="label">I can read</h2>
     <div class="setting-row">
@@ -119,6 +129,7 @@
       </div>
       <p class="tiny muted">{note} Reading questions never show furigana.</p>
     </section>
+  {/if}
   {/if}
 
   <section class="section">
@@ -177,6 +188,11 @@
       Example sentences: <a href="https://tatoeba.org">Tatoeba</a> (CC BY 2.0 FR).
       Word frequencies: <a href="https://github.com/rspeer/wordfreq">wordfreq</a>.
       Related-word links: <a href="https://fasttext.cc/docs/en/crawl-vectors.html">fastText</a> word vectors (CC BY-SA 3.0).
+      {#if study === 'en'}
+        English words and CEFR levels: the <a href="https://github.com/openlanguageprofiles/olp-en-cefrj">CEFR-J Wordlist</a>
+        (Tono Laboratory, Tokyo University of Foreign Studies) and the Octanove Vocabulary Profile (CC BY-SA 4.0).
+        Opposites and synonyms checked with <a href="https://wordnet.princeton.edu">WordNet</a>.
+      {/if}
     </p>
   </section>
 </main>

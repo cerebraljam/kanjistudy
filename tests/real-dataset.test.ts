@@ -1,6 +1,8 @@
-// The dataset the app ships, built by pipeline/build.py. Same checks as the sample, plus full runs in every theme.
+// The datasets the app ships: Japanese (pipeline/build.py) and English (pipeline/english.py).
+// Same checks as the sample, plus full runs in a sample of themes.
 import { describe, expect, it } from 'vitest';
-import data from '../public/data/dataset.json';
+import ja from '../public/data/dataset.json';
+import en from '../public/data/dataset-en.json';
 import { Graph } from '../src/lib/graph';
 import { seeded } from '../src/lib/kana';
 import { emptyProgress } from '../src/lib/progress';
@@ -8,10 +10,9 @@ import { Session } from '../src/lib/session';
 import type { Dataset } from '../src/lib/types';
 import { validate } from '../src/lib/validate';
 
-const ds = data as Dataset;
-const g = new Graph(ds);
+for (const ds of [ja as Dataset, en as Dataset]) describe(`shipped dataset (${ds.lang ?? 'ja'})`, () => {
+  const g = new Graph(ds);
 
-describe('shipped dataset', () => {
   it('has no errors', () => expect(validate(ds)).toEqual([]));
 
   it('every word has a link', () => {
@@ -32,6 +33,7 @@ describe('shipped dataset', () => {
           expect(q.options.filter((o) => o.correct)).toHaveLength(1);
           expect(new Set(q.options.map((o) => o.label)).size).toBe(q.options.length);
           if (q.q === 'read') expect(g.word(q.word).noRead).not.toBe(true);
+          if (q.q === 'read' && ds.lang === 'en') expect(q.options.find((o) => o.correct)!.label).toBe(g.word(q.word).jp);
           if (q.target) for (const o of q.options.filter((x) => !x.correct)) expect(g.edgeBetween(q.word, o.id)).toBeUndefined();
           const pick = rng() < 0.7 ? q.options.find((o) => o.correct)! : q.options.find((o) => !o.correct)!;
           s.answer(pick.id);

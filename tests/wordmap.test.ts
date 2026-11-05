@@ -39,13 +39,12 @@ describe('word map math', () => {
   });
 });
 
-const DATA = 'public/data/dataset.json';
-const MAP = 'public/data/map.json';
-describe.runIf(existsSync(DATA) && existsSync(MAP))('the shipped map', () => {
+for (const [DATA, MAP] of [['public/data/dataset.json', 'public/data/map.json'], ['public/data/dataset-en.json', 'public/data/map-en.json']])
+describe.runIf(existsSync(DATA) && existsSync(MAP))(`the shipped map ${MAP}`, () => {
   const ds = JSON.parse(readFileSync(DATA, 'utf8')) as Dataset;
   const file = JSON.parse(readFileSync(MAP, 'utf8')) as WordMapFile;
 
-  it('matches the shipped word list (rerun pipeline/map.py after a data build)', async () => {
+  it('matches the shipped word list (rerun pipeline/map.py, then english.py, after a data build)', async () => {
     expect(file.ids).toBe(await idsHash(ds.words.map((w) => w.id)));
     const m = await toWordMap(file, ds);
     expect(m.x.length).toBe(ds.words.length);

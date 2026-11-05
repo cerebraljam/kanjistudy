@@ -5,7 +5,7 @@
 
 import { emptyProgress, type Progress } from './progress';
 import type { RunSummary } from './session';
-import type { Theme, ThemeId } from './types';
+import type { Study, Theme, ThemeId } from './types';
 
 export type Furigana = 'auto' | 'always' | 'never';
 export type Look = 'paper' | 'night' | 'arcade';
@@ -42,6 +42,26 @@ export interface Save {
 
 export const SCHEMA = 1;
 export const STORAGE_KEY = 'kanjistudy';
+/** Which language is studied. Each has its own save: STORAGE_KEY for Japanese, `kanjistudy-en`. */
+export const STUDY_KEY = 'kanjistudy-study';
+
+export const saveKey = (study: Study) => (study === 'ja' ? STORAGE_KEY : `${STORAGE_KEY}-${study}`);
+
+export function loadStudy(store: Store = localStorage): Study {
+  try {
+    return store.getItem(STUDY_KEY) === 'en' ? 'en' : 'ja';
+  } catch {
+    return 'ja';
+  }
+}
+
+export function persistStudy(study: Study, store: Store = localStorage) {
+  try {
+    store.setItem(STUDY_KEY, study);
+  } catch {
+    /* blocked: stays on the default */
+  }
+}
 const MAX_RUNS = 200;
 
 export const defaultSettings = (): Settings => ({
@@ -107,10 +127,10 @@ export interface Store {
  * - before a save is upgraded to a newer schema, the old one is copied (`kanjistudy.schema<n>`),
  *   so a faulty migration can be undone.
  */
-export function load(store: Store = localStorage): Save {
+export function load(store: Store = localStorage, KEY = STORAGE_KEY): Save {
   let text: string | null;
   try {
-    text = store.getItem(STORAGE_KEY);
+    text = store.getItem(KEY);
   } catch (err) {
     // Storage blocked (cookies disabled for the site, some private modes): play without saving.
     console.warn('kanjistudy: storage is not available', err);
@@ -120,14 +140,14 @@ export function load(store: Store = localStorage): Save {
   try {
     const raw = JSON.parse(text);
     if (raw && typeof raw.schema === 'number' && raw.schema < SCHEMA) {
-      const key = `${STORAGE_KEY}.schema${raw.schema}`;
+      const key = `${KEY}.schema${raw.schema}`;
       if (!store.getItem(key)) store.setItem(key, text);
     }
     return migrate(raw);
   } catch (err) {
     console.warn('kanjistudy: could not read the save, keeping a copy aside', err);
     try {
-      store.setItem(`${STORAGE_KEY}.unreadable.${Date.now()}`, text);
+      store.setItem(`${KEY}.unreadable.${Date.now()}`, text);
     } catch {
       /* full or blocked: the original stays under its key until the next save */
     }
@@ -136,10 +156,10 @@ export function load(store: Store = localStorage): Save {
 }
 
 /** Writes the save. Returns false when the browser refused (storage full or blocked). */
-export function persist(save: Save, store: Store = localStorage): boolean {
+export function persist(save: Save, store: Store = localStorage, KEY = STORAGE_KEY): boolean {
   save.runs = save.runs.slice(-MAX_RUNS);
   try {
-    store.setItem(STORAGE_KEY, JSON.stringify(save));
+    store.setItem(KEY, JSON.stringify(save));
     return true;
   } catch (err) {
     console.warn('kanjistudy: could not save', err);
@@ -151,13 +171,13 @@ export function persist(save: Save, store: Store = localStorage): boolean {
  * Copies set aside by load(), newest first, that still hold progress: offered for restoring
  * when the current save is empty.
  */
-export function recoverable(store: Store = localStorage): { key: string; save: Save; links: number }[] {
+export function recoverable(store: Store = localStorage, KEY = STORAGE_KEY): { key: string; save: Save; links: number }[] {
   const out: { key: string; save: Save; links: number }[] = [];
   try {
     const n = store.length ?? 0;
     for (let i = 0; i < n; i++) {
       const key = store.key?.(i);
-      if (!key || !key.startsWith(`${STORAGE_KEY}.`)) continue;
+      if (!key || !key.startsWith(`${KEY}.`)) continue;
       try {
         const save = migrate(JSON.parse(store.getItem(key) ?? ''));
         const links = Object.keys(save.progress.links).length;

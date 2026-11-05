@@ -84,9 +84,11 @@ export class Graph {
     return false;
   }
 
-  /** Words written in kanji get a reading question; pure-kana words do not. */
+  /** Words written in kanji get a reading question; pure-kana words do not. English words get a
+   * spelling question when they have wrong spellings to offer. */
   hasReading(id: WordId): boolean {
     const w = this.word(id);
+    if (w.spell) return w.spell.length >= 2;
     return !!w.kana && !w.noRead && !hasKatakana(w.jp) && w.kana !== w.jp;
   }
 

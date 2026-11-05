@@ -14,6 +14,13 @@ export function validate(ds: Dataset): string[] {
     if (byJp.has(w.jp)) errors.push(`${w.id} and ${byJp.get(w.jp)} are both written ${w.jp}`);
     byJp.set(w.jp, w.id);
     if (!w.en.length || w.en.some((e) => !e.trim())) errors.push(`${w.id} has no meaning`);
+    if (ds.lang === 'en') {
+      if (!/^[a-z][a-z' -]*$/.test(w.jp)) errors.push(`${w.id} (${w.jp}) is not a plain English word`);
+      if (w.kana !== undefined) errors.push(`${w.id} is English: no reading`);
+      if (w.spell && (w.spell.includes(w.jp) || new Set(w.spell).size !== w.spell.length)) errors.push(`${w.id} has a wrong spelling that is the word, or one twice`);
+      if (w.jlpt !== undefined && !(w.jlpt in (ds.levels ?? []))) errors.push(`${w.id} has level ${w.jlpt}, which has no name`);
+      continue;
+    }
     if (w.kana !== undefined && !/^[ぁ-ゖー]+$/.test(w.kana)) errors.push(`${w.id} reading ${w.kana} is not hiragana`);
     if (w.kana === undefined && !isKana(w.jp)) errors.push(`${w.id} (${w.jp}) has kanji but no reading`);
     if (w.kana !== undefined && hasKatakana(w.jp) && isKana(w.jp)) errors.push(`${w.id} is katakana; leave out its reading`);

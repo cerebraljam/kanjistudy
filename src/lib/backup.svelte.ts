@@ -1,6 +1,6 @@
 // Backup file download (Settings).
 
-import { app, save } from './app.svelte';
+import { app, save, study } from './app.svelte';
 import { exportSave, type Save } from './storage';
 
 export function downloadBackup() {
@@ -9,7 +9,7 @@ export function downloadBackup() {
   const blob = new Blob([exportSave($state.snapshot(app.save) as Save)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `kanjistudy-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `kanjistudy${study === 'ja' ? '' : `-${study}`}-backup-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 }

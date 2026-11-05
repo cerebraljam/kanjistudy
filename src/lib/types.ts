@@ -1,22 +1,31 @@
 // Shapes shared by the dataset (static, built before deploy) and the app.
 
 export type WordId = string;
+/** The language studied: Japanese (the original app) or English, for Japanese speakers. */
+export type Study = 'ja' | 'en';
 export type ThemeId = string;
 
 /** Question types. 関/同/反 move the chain to the answer; 意/読 stay on the word. */
 export type QType = 'rel' | 'syn' | 'ant' | 'mean' | 'read';
 export type EdgeType = 'rel' | 'syn' | 'ant';
 
+/**
+ * A word of the language studied. The field names come from the Japanese dataset; in the English
+ * dataset (lang "en") `jp` is the English word and `en` its meanings in Japanese. In both, `jp` is
+ * the studied language and `en` the learner's.
+ */
 export interface Word {
   id: WordId;
   /** Written form, as shown to the player. */
   jp: string;
   /** Reading in hiragana. Omitted for words written only in kana. */
   kana?: string;
-  /** English meanings, most common first. */
+  /** Meanings in the learner's language, most common first. */
   en: string[];
-  /** JLPT level 5 (easiest) to 1. Omitted when the word is on no list. */
+  /** Level, 5 the easiest: JLPT N5–N1, or for English A1 (5) to C2 (0). Omitted when on no list. */
   jlpt?: number;
+  /** English only: wrong spellings for the spelling question (綴). */
+  spell?: string[];
   /** Optional example sentence and its translation. */
   ex?: { jp: string; en: string };
   /** The written form has several common readings (生, 行く): no reading question. */
@@ -50,6 +59,10 @@ export const CATEGORIES: { id: string; en: string }[] = [
 
 export interface Dataset {
   version: number;
+  /** The language studied. Japanese when omitted. */
+  lang?: Study;
+  /** Level names by `jlpt` value, when not JLPT: ["C2", "C1", "B2", "B1", "A2", "A1"]. */
+  levels?: string[];
   /** Where the words come from, e.g. "JMdict 3.6.2+20261026". */
   source?: string;
   words: Word[];
@@ -64,6 +77,9 @@ export const Q_META: Record<QType, { glyph: string; label: string; prompt: strin
   mean: { glyph: '意', label: 'Meaning', prompt: 'What does it mean?' },
   read: { glyph: '読', label: 'Reading', prompt: 'How is it read?' },
 };
+
+/** In English, the reading question is a spelling question. Applied by useStudy(). */
+export const SPELLING = { glyph: '綴', label: 'Spelling', prompt: 'Which spelling is right?' };
 
 export const MOVES: QType[] = ['rel', 'syn', 'ant'];
 export const isMove = (q: QType) => q === 'rel' || q === 'syn' || q === 'ant';

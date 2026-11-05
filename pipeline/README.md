@@ -22,6 +22,7 @@ Needs [uv](https://docs.astral.sh/uv/). The embedding step uses the GPU when the
 | `candidates.py` | For each theme facet, the closest words, for picking theme words | `build/candidates/<theme>.txt` |
 | `build.py` | Themes from `curation/`, links inside each theme, hand fixes | `../public/data/dataset.json` |
 | `map.py` | Fixed 2D position of every word (UMAP on topic vectors) and named areas, for the Map screen. Rerun after `build.py` | `../public/data/map.json` |
+| `english.py` | The English dataset, for Japanese speakers (see below). Rerun after `map.py` | `../public/data/dataset-en.json`, `map-en.json` |
 
 ## Curation: what a person (or Claude) decides
 
@@ -39,8 +40,34 @@ that **belong together** (改札 → 駅員, 番線; 弁当 → おにぎり, �
 `build.py` reports anything it cannot apply, and words left with too few links. `npm test` then
 checks the dataset and plays runs in every theme.
 
+## English for Japanese speakers
+
+`english.py` mirrors the Japanese data instead of building a second one from scratch. Words come
+from the CEFR-J and Octanove lists (A1–C2, `MAX_LEVEL`). Each gets Japanese meanings from JMdict
+read backwards, and an anchor, the Japanese dataset word that translates it (train → 電車).
+Through the anchors it inherits the Japanese themes (names swapped: English first) and their
+関 links; JLPT lists and Japanese-grammar themes are left out. A word whose translation is not in
+the dataset (象 for elephant) anchors in the larger vocabulary instead: no theme to inherit, so it
+goes to a level list ("B2 nouns"), linked to the words closest in topic anywhere. Two English words on one anchor are synonyms when WordNet agrees (big, large → 大きい),
+and WordNet adds opposites. The map places each word at its anchor's spot.
+
+The reading question becomes a spelling question (綴): wrong spellings by the confusions Japanese
+speakers meet (L/R first, then B/V, TH/S, silent letters, doubled consonants), none of them a real
+word.
+
+Curation, in `curation/en/`:
+
+- `meanings.txt`: `step = 一歩; 段階; 手順` sets a word's meanings (and its anchor, the first meaning
+  the Japanese dataset has).
+- `theme-drops.txt`: `infosec step` takes a word out of a theme it reached through another sense.
+
 ## Sources and licenses
 
 JMdict (EDRDG, CC BY-SA 4.0) via jmdict-simplified; JLPT lists by Jonathan Waller (CC BY) via
 yomitan-jlpt-vocab; example sentences from Tatoeba (CC BY 2.0 FR); wordfreq for frequencies.
 The dataset is therefore CC BY-SA 4.0. Credits are shown in the app's Settings.
+
+English: the CEFR-J Wordlist 1.5 (Tono Laboratory, TUFS; free with citation) and the Octanove
+Vocabulary Profile C1/C2 (CC BY-SA 4.0), both via
+[olp-en-cefrj](https://github.com/openlanguageprofiles/olp-en-cefrj); WordNet for synonyms,
+opposites and checking that a wrong spelling is not a real word.
