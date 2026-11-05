@@ -21,6 +21,7 @@ Needs [uv](https://docs.astral.sh/uv/). The embedding step uses the GPU when the
 | `topic.py` | Topic vectors from fastText (`raw/cc.ja.300.vec.gz`, 1.3 GB, CC BY-SA 3.0). Used for 関 links | `build/topic.npy` |
 | `candidates.py` | For each theme facet, the closest words, for picking theme words | `build/candidates/<theme>.txt` |
 | `build.py` | Themes from `curation/`, links inside each theme, hand fixes | `../public/data/dataset.json` |
+| `map.py` | Fixed 2D position of every word (UMAP on topic vectors) and named areas, for the Map screen. Rerun after `build.py` | `../public/data/map.json` |
 
 ## Curation: what a person (or Claude) decides
 

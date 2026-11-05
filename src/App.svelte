@@ -8,6 +8,7 @@
   import Summary from './screens/Summary.svelte';
   import Theme from './screens/Theme.svelte';
   import Welcome from './screens/Welcome.svelte';
+  import WordMap from './screens/Map.svelte';
   import { applyLook } from './lib/look';
 
   $effect(() => {
@@ -42,6 +43,8 @@
     <Search />
   {:else if r.name === 'settings'}
     <Settings />
+  {:else if r.name === 'map'}
+    <WordMap />
   {:else}
     <Home />
   {/if}

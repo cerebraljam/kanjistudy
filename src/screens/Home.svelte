@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SaveNotice from '../components/SaveNotice.svelte';
   import { app } from '../lib/app.svelte';
   import { levelLabel, pct } from '../lib/display';
   import { mastery, wordStatus, wordsToMaster } from '../lib/progress';
@@ -65,9 +66,12 @@
       <span class="lv-track" aria-hidden="true"><span style:width="{lv.progress * 100}%"></span></span>
       <span class="small muted">{solidWords} {solidWords === 1 ? 'word' : 'words'} solid · {mastered.length} mastered</span>
     </div>
-    <a class="icon-btn" href={href.search()} aria-label="Find a theme"><Icon name="search" /></a>
+    <a class="map-btn" href={href.map()} title="Map of your vocabulary"><Icon name="map" /><span>Map</span></a>
+    <a class="icon-btn" href={href.search()} aria-label="Find or build a theme" title="Find or build a theme"><Icon name="search" /></a>
     <a class="icon-btn edge-right" href={href.settings()} aria-label="Settings"><Icon name="sliders" /></a>
   </header>
+
+  <SaveNotice />
 
   {#if current}
     <a class="continue" href={href.play(current.theme.id)}>
@@ -135,20 +139,25 @@
     </section>
   {/if}
 
-  <section class="section bottom">
-    {#if mastered.length > 0}
+  {#if mastered.length > 0}
+    <section class="section bottom">
       <h2>Mastered</h2>
       <div class="pills">
         {#each mastered as s (s.theme.id)}
           <a class="pill jp" href={href.theme(s.theme.id)}>{s.theme.jp}</a>
         {/each}
       </div>
-    {/if}
-    <a class="more" href={href.search()}>Find or build a theme</a>
-  </section>
+    </section>
+  {/if}
 </main>
 
 <style>
+  .map-btn {
+    height: 40px; padding: 0 10px 0 8px; border-radius: 12px; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; text-decoration: none;
+    background: var(--accent-soft); color: var(--accent-ink);
+  }
+  .map-btn:hover { color: var(--accent-ink); filter: brightness(1.05); }
   .brand { flex-grow: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
   .brand-line { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .brand h1 { font-size: 20px; }
@@ -190,5 +199,4 @@
   .bottom { margin-top: auto; }
   .pills { display: flex; flex-wrap: wrap; gap: 8px; }
   .pills a { color: var(--ink); text-decoration: none; }
-  .more { font-size: 14px; font-weight: 500; padding: 12px 0; text-decoration: none; }
 </style>

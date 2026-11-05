@@ -5,6 +5,7 @@
 //   #/summary     the last run
 //   #/search      find or build a theme
 //   #/settings    reading aids and options
+//   #/map         every word, placed by topic, colored by progress
 
 export type Route =
   | { name: 'home' }
@@ -12,7 +13,8 @@ export type Route =
   | { name: 'theme'; theme: string }
   | { name: 'summary' }
   | { name: 'search' }
-  | { name: 'settings' };
+  | { name: 'settings' }
+  | { name: 'map' };
 
 function parse(hash: string): Route {
   const [, name, arg] = hash.replace(/^#/, '').split('/');
@@ -22,6 +24,7 @@ function parse(hash: string): Route {
   if (name === 'summary') return { name: 'summary' };
   if (name === 'search') return { name: 'search' };
   if (name === 'settings') return { name: 'settings' };
+  if (name === 'map') return { name: 'map' };
   return { name: 'home' };
 }
 
@@ -39,6 +42,7 @@ export const href = {
   summary: () => '#/summary',
   search: () => '#/search',
   settings: () => '#/settings',
+  map: () => '#/map',
 };
 
 export const go = (h: string) => {

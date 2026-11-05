@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SaveNotice from '../components/SaveNotice.svelte';
   // First visit: pick a look. Tapping a card switches the whole page to it, so the choice is seen
   // before it is made. Until then the page follows the device's light or dark setting.
   import { app, save } from '../lib/app.svelte';
@@ -26,6 +27,8 @@
     <h1>Pick a look</h1>
     <p class="muted">Tap one to try it. You can change it any time in Settings.</p>
   </div>
+
+  <SaveNotice />
 
   <LookPicker value={picked} {device} onpick={pick} />
 

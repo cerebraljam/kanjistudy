@@ -28,6 +28,11 @@
   --knob: #ffffff;
   --segmented-bg: #f2f2ef;
   --segmented-on: #ffffff;
+  /* Map dots: not met yet, learning, solid. */
+  --map-unseen: #dcdcd7;
+  --map-unseen-strong: #bdbdb7;
+  --map-learning: #c8771e;
+  --map-solid: var(--right);
   --radius: 14px;
   --word-weight: 500;
   --jp: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
@@ -65,6 +70,9 @@
   --knob: #e7e8eb;
   --segmented-bg: #1d2027;
   --segmented-on: #2c3039;
+  --map-unseen: #343841;
+  --map-unseen-strong: #5a606b;
+  --map-learning: #f0a35e;
   color-scheme: dark;
 }
 
@@ -102,6 +110,9 @@
   --card-ink: #1e1b45;
   --card-muted: #5a5390;
   --seal: #d8432f;
+  --map-unseen: #3f3a8c;
+  --map-unseen-strong: #5a54b0;
+  --map-learning: #ffb84d;
   --radius: 16px;
   --word-weight: 700;
   --jp: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif;
@@ -170,7 +181,7 @@ button { font: inherit; color: inherit; }
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   border-radius: var(--radius); border: 1.5px solid var(--line-strong);
   background: var(--bg); color: var(--ink);
-  font-size: 16px; font-weight: 500; text-decoration: none; cursor: pointer;
+  font-size: 16px; font-weight: 500; text-decoration: none; cursor: pointer; white-space: nowrap;
 }
 .btn:hover { color: var(--ink); background: var(--soft); }
 .btn.primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600; }
@@ -178,7 +189,7 @@ button { font: inherit; color: inherit; }
 [data-look='arcade'] .btn { font-weight: 700; }
 [data-look='arcade'] .btn.primary { box-shadow: 0 4px 0 var(--primary-edge); font-weight: 800; }
 [data-look='arcade'] .btn.primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--primary-edge); }
-.btn.small { height: 44px; font-size: 15px; }
+.btn.small { height: 44px; padding: 0 14px; font-size: 15px; }
 .btn.block { width: 100%; }
 .btn:disabled { opacity: 0.5; cursor: default; }
 

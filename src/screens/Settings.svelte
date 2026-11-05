@@ -1,9 +1,10 @@
 <script lang="ts">
   import { app, dataset, replaceSave, save } from '../lib/app.svelte';
+  import { downloadBackup } from '../lib/backup.svelte';
   import { rubyFor } from '../lib/display';
   import { wordStatus } from '../lib/progress';
   import { href } from '../lib/router.svelte';
-  import { exportSave, importSave, type Furigana } from '../lib/storage';
+  import { importSave, type Furigana } from '../lib/storage';
   import { deviceLook } from '../lib/look';
   import Icon from '../components/Icon.svelte';
   import LookPicker from '../components/LookPicker.svelte';
@@ -49,14 +50,11 @@
   let backupNote = $state('');
 
   function download() {
-    const blob = new Blob([exportSave($state.snapshot(app.save) as any)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `kanjistudy-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    downloadBackup();
     backupNote = 'Backup downloaded.';
   }
+
+  const lastBackup = $derived(app.save.backupAt ? new Date(app.save.backupAt).toLocaleDateString() : 'never');
 
   async function restore(e: Event) {
     const input = e.currentTarget as HTMLInputElement;
@@ -67,7 +65,7 @@
       const next = importSave(await f.text());
       const n = Object.keys(next.progress.links).length;
       if (!confirm(`Replace your progress on this device with this backup (${n} links, ${next.runs.length} runs)?`)) return;
-      replaceSave(next);
+      replaceSave({ ...next, backupAt: next.backupAt ?? Date.now() });
       backupNote = 'Backup restored.';
     } catch (err) {
       backupNote = `That file is not a backup: ${(err as Error).message}`;
@@ -154,7 +152,10 @@
 
   <section class="section">
     <h2 class="label">Backup</h2>
-    <p class="small muted">Progress lives in this browser. Download a backup now and then, or to move to another device.</p>
+    <p class="small muted">
+      Progress is kept in this browser, for this address only. If the browser clears site data when it closes,
+      progress goes with it: a backup file brings it back. Last backup: {lastBackup}.
+    </p>
     <div class="row">
       <button class="btn small" onclick={download}>Download backup</button>
       <label class="btn small file">

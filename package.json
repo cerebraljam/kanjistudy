@@ -10,7 +10,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
     "simulate": "vitest run tests/simulate.test.ts",
-    "data": "cd pipeline && uv run python fetch.py && uv run python vocab.py && uv run python embed.py && uv run python topic.py && uv run python build.py",
+    "data": "cd pipeline && uv run python fetch.py && uv run python vocab.py && uv run python embed.py && uv run python topic.py && uv run python build.py && uv run python map.py",
     "candidates": "cd pipeline && uv run python candidates.py"
   },
   "devDependencies": {

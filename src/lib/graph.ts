@@ -26,7 +26,8 @@ export class Graph {
   private readonly linksByTheme = new Map<ThemeId, LinkKey[]>();
   private readonly linksByWordInTheme = new Map<string, LinkKey[]>();
 
-  constructor(readonly data: Dataset) {
+  /** `hidden` themes can be played and scored but are not listed (the map's "Play this area"). */
+  constructor(readonly data: Dataset, hidden: Theme[] = []) {
     for (const w of data.words) {
       this.words.set(w.id, w);
       this.adj.set(w.id, []);
@@ -37,7 +38,7 @@ export class Graph {
       this.adj.get(e.b)?.push({ to: e.a, type: e.type });
     }
     this.themeList = data.themes;
-    for (const t of data.themes) {
+    for (const t of [...data.themes, ...hidden]) {
       this.themes.set(t.id, t);
       for (const w of t.words) {
         this.themesByWord.get(w)?.push(t.id);
