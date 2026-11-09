@@ -67,6 +67,15 @@
   // ---- typed answers ----
   let typed = $state('');
   let field = $state<HTMLInputElement>();
+  /**
+   * Typing on a touchscreen: the keyboard takes half the screen, so the screen goes compact (no
+   * trail, no hint, the word at the top) and stays scrolled up, keeping the word in sight.
+   */
+  let keyboard = $state(false);
+  function onFocus() {
+    keyboard = matchMedia('(pointer: coarse)').matches;
+    if (keyboard) settled().then(() => window.scrollTo(0, 0));
+  }
   // Each typed question starts empty, with the keyboard up.
   $effect(() => {
     if (view?.typing && !answered) {
@@ -195,7 +204,7 @@
     <a class="btn" href={href.home()}>Home</a>
   </main>
 {:else}
-  <main class="screen play">
+  <main class="screen play" class:keyboard>
     <header class="head">
       <a class="icon-btn edge-left" href={href.home()} aria-label="End run"><Icon name="close" /></a>
       <div class="progress">
@@ -281,6 +290,8 @@
               bind:this={field}
               value={typed}
               oninput={onType}
+              onfocus={onFocus}
+              onblur={() => (keyboard = false)}
               class="answer"
               class:latin={study === 'en' || !settings.hiragana}
               class:right={answered?.correct}
@@ -455,6 +466,10 @@
   .option.wrong :global(.jp), .option.wrong .label { text-decoration: line-through; }
   .option.dim { border-color: var(--line); color: var(--muted); }
 
+  /* The touch keyboard is up (typed answers): only what is needed to answer, at the top. */
+  .keyboard :global(.trail), .keyboard .foot { display: none; }
+  .keyboard .stage { flex-grow: 0; gap: 10px; padding-top: 4px; }
+  .keyboard .word-block { flex-grow: 0; min-height: 0; }
   .foot { min-height: clamp(56px, 9dvh, 76px); display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 6px; padding-top: 12px; }
   .reason { margin: 0; }
   .center { width: 100%; text-align: center; }
