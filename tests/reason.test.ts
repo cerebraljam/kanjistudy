@@ -35,3 +35,14 @@ describe('why two words are linked', () => {
     expect(linkReason(g, 'eki', 'ue')).toBeNull();
   });
 });
+
+import { diffChars } from '../src/lib/display';
+describe('typed answers, compared', () => {
+  it('marks what differs', () => {
+    const d = diffChars('かいさく', 'かいさつ');
+    expect(d.typed.map((c) => c.ok)).toEqual([true, true, true, false]);
+    expect(d.right.map((c) => c.ok)).toEqual([true, true, true, false]);
+    const e = diffChars('recieve', 'receive');
+    expect(e.right.filter((c) => !c.ok).length).toBe(1);
+  });
+});

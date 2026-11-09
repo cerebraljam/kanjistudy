@@ -1,7 +1,8 @@
 <script lang="ts">
   import { untrack } from 'svelte';
   import { app, isCustom, removeCustomTheme } from '../lib/app.svelte';
-  import { describeLink, levelLabel, pct, readingText } from '../lib/display';
+  import { describeLink, levelLabel, pct } from '../lib/display';
+  import { showWord } from '../lib/details.svelte';
   import { mastery, weakLinks, wordStatus, wordsToMaster } from '../lib/progress';
   import { go, href } from '../lib/router.svelte';
   import Icon from '../components/Icon.svelte';
@@ -27,8 +28,6 @@
         .slice(0, 3)
     : [];
 
-  // Tapping a word shows what it means.
-  let open = $state<string | null>(null);
 
   function remove() {
     if (t && confirm(`Remove “${t.jp}”? Your progress on its words stays.`)) {
@@ -76,13 +75,9 @@
       <div class="words">
         {#each words as w (w.id)}
           {@const st = wordStatus(g, p, w.id)}
-          <button class="word jp {st}" aria-expanded={open === w.id} aria-label="{w.jp}, {st === 'unseen' ? 'not seen' : st}" onclick={() => (open = open === w.id ? null : w.id)}>{w.jp}</button>
+          <button class="word-chip jp {st}" aria-label="{w.jp}, {st === 'unseen' ? 'not seen' : st}: details" onclick={() => showWord(w.id)}>{w.jp}</button>
         {/each}
       </div>
-      {#if open}
-        {@const w = g.word(open)}
-        <p class="small detail"><span class="jp strong">{w.jp}</span>{w.kana && w.kana !== w.jp ? ` ${readingText(w.kana, settings)}` : ''} · {w.en.join(', ')}</p>
-      {/if}
     </div>
 
     {#if weak.length > 0}
@@ -128,11 +123,6 @@
   .sw.shaky { border: 1.5px solid var(--shaky); }
   .sw.unseen { border: 1.5px dashed var(--muted); }
   .words { display: flex; flex-wrap: wrap; gap: 8px; }
-  .word { font-size: 15px; padding: 6px 10px; border-radius: 10px; cursor: pointer; min-height: 36px; }
-  .word.solid { background: var(--primary); color: var(--on-primary); border: 1.5px solid var(--primary); }
-  .word.shaky { background: var(--bg); color: var(--shaky); border: 1.5px solid var(--shaky); }
-  .word.unseen { background: var(--bg); color: var(--muted); border: 1.5px dashed var(--muted); }
-  .detail { padding: 10px 12px; background: var(--soft); border-radius: 10px; }
   .link { gap: 8px; font-size: 15px; }
   .end { margin-left: auto; }
   .pills { display: flex; flex-wrap: wrap; gap: 8px; }

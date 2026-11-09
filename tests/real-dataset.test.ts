@@ -9,14 +9,19 @@ import { emptyProgress } from '../src/lib/progress';
 import { Session } from '../src/lib/session';
 import type { Dataset } from '../src/lib/types';
 import { validate } from '../src/lib/validate';
+import { withoutLoanwords } from '../src/lib/loanwords';
 
-for (const ds of [ja as Dataset, en as Dataset]) describe(`shipped dataset (${ds.lang ?? 'ja'})`, () => {
+const skipped = withoutLoanwords(ja as Dataset);
+for (const [ds, name] of [[ja as Dataset, 'ja'], [skipped, 'ja, easy loanwords skipped'], [en as Dataset, 'en']] as const) describe(`shipped dataset (${name})`, () => {
   const g = new Graph(ds);
 
   it('has no errors', () => expect(validate(ds)).toEqual([]));
 
   it('every word has a link', () => {
-    expect(ds.words.filter((w) => g.neighbors(w.id).length === 0).map((w) => w.jp)).toEqual([]);
+    const alone = ds.words.filter((w) => g.neighbors(w.id).length === 0).map((w) => w.jp);
+    // Skipping easy loanwords leaves a few words with no link left: few enough not to matter.
+    if (ds === skipped) expect(alone.length).toBeLessThan(ds.words.length / 100);
+    else expect(alone).toEqual([]);
   });
 
   // A fixed sample of themes keeps the suite fast; the hand-made pilots are always included.
@@ -35,8 +40,15 @@ for (const ds of [ja as Dataset, en as Dataset]) describe(`shipped dataset (${ds
           if (q.q === 'read') expect(g.word(q.word).noRead).not.toBe(true);
           if (q.q === 'read' && ds.lang === 'en') expect(q.options.find((o) => o.correct)!.label).toBe(g.word(q.word).jp);
           if (q.target) for (const o of q.options.filter((x) => !x.correct)) expect(g.edgeBetween(q.word, o.id)).toBeUndefined();
-          const pick = rng() < 0.7 ? q.options.find((o) => o.correct)! : q.options.find((o) => !o.correct)!;
-          s.answer(pick.id);
+          if (q.q === 'read' && rng() < 0.5) {
+            // Typed: the reading (or spelling) itself must count as right, anything else as wrong.
+            const w = g.word(q.word);
+            const right = rng() < 0.7;
+            expect(s.answerTyped(right ? (w.kana ?? w.jp) : 'zzz').correct).toBe(right);
+          } else {
+            const pick = rng() < 0.7 ? q.options.find((o) => o.correct)! : q.options.find((o) => !o.correct)!;
+            s.answer(pick.id);
+          }
           s.next();
         }
       }

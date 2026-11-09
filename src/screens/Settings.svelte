@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { app, dataset, replaceSave, save, study, switchStudy } from '../lib/app.svelte';
+  import { app, dataset, replaceSave, save, setSkipLoanwords, study, switchStudy } from '../lib/app.svelte';
   import { downloadBackup } from '../lib/backup.svelte';
   import { rubyFor } from '../lib/display';
   import { wordStatus } from '../lib/progress';
@@ -11,6 +11,7 @@
   import WordText from '../components/WordText.svelte';
 
   const s = $derived(app.save.settings);
+  const loanCount = dataset.words.filter((w) => w.loan).length;
   const g = app.graph;
 
   function set<K extends keyof typeof app.save.settings>(k: K, v: (typeof app.save.settings)[K]) {
@@ -93,18 +94,43 @@
     <LookPicker value={s.look ?? deviceLook()} device={deviceLook()} onpick={(l) => set('look', l)} />
   </section>
 
-  {#if study === 'ja'}
   <section class="section">
-    <h2 class="label">I can read</h2>
+    <h2 class="label">Reading and answering</h2>
+    {#if study === 'ja'}
     <div class="setting-row">
-      <span class="grow"><span class="name">Hiragana</span><span class="small muted jp">あいうえお かきくけこ</span></span>
+      <span class="grow"><span class="name">I read hiragana</span><span class="small muted jp">あいうえお かきくけこ</span></span>
       <button class="switch" role="switch" aria-checked={s.hiragana} aria-label="I can read hiragana" onclick={() => set('hiragana', !s.hiragana)}></button>
     </div>
     <div class="setting-row">
-      <span class="grow"><span class="name">Katakana</span><span class="small muted jp">アイウエオ カキクケコ</span></span>
+      <span class="grow"><span class="name">I read katakana</span><span class="small muted jp">アイウエオ カキクケコ</span></span>
       <button class="switch" role="switch" aria-checked={s.katakana} aria-label="I can read katakana" onclick={() => set('katakana', !s.katakana)}></button>
     </div>
+    <div class="setting-row">
+      <span class="grow">
+        <span class="name">Skip easy loanwords</span>
+        <span class="small muted">
+          Katakana words that sound like their English meaning (<span class="jp">コンピューター</span>, {loanCount.toLocaleString()} words).
+          False friends stay (<span class="jp">マンション</span> is an apartment). Your progress on them is kept.
+        </span>
+      </span>
+      <button class="switch" role="switch" aria-checked={s.skipLoanwords} aria-label="Skip easy loanwords" onclick={() => setSkipLoanwords(!s.skipLoanwords)}></button>
+    </div>
+    {/if}
+    <div class="setting-row">
+      <span class="grow">
+        <span class="name">{study === 'ja' ? 'Type readings' : 'Type spellings'}</span>
+        <span class="small muted">
+          {study === 'ja'
+            ? 'Hard mode: readings are typed, in romaji (kaisatsu) or kana, instead of picked.'
+            : 'Hard mode: spellings are typed instead of picked.'}
+          Meanings and links stay multiple choice.
+        </span>
+      </span>
+      <button class="switch" role="switch" aria-checked={s.typeAnswers} aria-label={study === 'ja' ? 'Type readings' : 'Type spellings'} onclick={() => set('typeAnswers', !s.typeAnswers)}></button>
+    </div>
   </section>
+
+  {#if study === 'ja'}
 
   <section class="section">
     <h2 class="label" id="furi">Furigana over kanji</h2>
@@ -185,6 +211,7 @@
       <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>{dataset.source ? ` (${dataset.source})` : ''}.
       JLPT levels: Jonathan Waller's <a href="http://www.tanos.co.uk/jlpt/">JLPT resources</a> (CC BY), matched to JMdict by
       <a href="https://github.com/stephenmk/yomitan-jlpt-vocab">yomitan-jlpt-vocab</a>.
+      Kanji readings: <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a> (EDRDG, CC BY-SA 4.0).
       Example sentences: <a href="https://tatoeba.org">Tatoeba</a> (CC BY 2.0 FR).
       Word frequencies: <a href="https://github.com/rspeer/wordfreq">wordfreq</a>.
       Related-word links: <a href="https://fasttext.cc/docs/en/crawl-vectors.html">fastText</a> word vectors (CC BY-SA 3.0).

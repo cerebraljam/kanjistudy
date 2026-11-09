@@ -102,3 +102,18 @@ describe('run summary for the end-of-run screen', () => {
     expect(sum.solidAfter).toBeGreaterThanOrEqual(0);
   });
 });
+
+describe('typed answers', () => {
+  it('accepts a reading in romaji or kana, and a spelling', async () => {
+    const { typedMatches } = await import('../src/lib/session');
+    const ja = { id: 'x', jp: '改札', kana: 'かいさつ', en: ['ticket gate'] };
+    expect(typedMatches(ja, 'kaisatsu')).toBe(true);
+    expect(typedMatches(ja, ' KAISATU ')).toBe(true);
+    expect(typedMatches(ja, 'かいさつ')).toBe(true);
+    expect(typedMatches(ja, 'カイサツ')).toBe(true);
+    expect(typedMatches(ja, 'kaisaku')).toBe(false);
+    const en = { id: 'receive', jp: 'receive', en: ['受け取る'], spell: ['recieve', 'leceive'] };
+    expect(typedMatches(en, 'Receive')).toBe(true);
+    expect(typedMatches(en, 'recieve')).toBe(false);
+  });
+});

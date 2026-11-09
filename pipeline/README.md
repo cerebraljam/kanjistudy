@@ -20,8 +20,9 @@ Needs [uv](https://docs.astral.sh/uv/). The embedding step uses the GPU when the
 | `embed.py` | Meaning vectors: each word (form, reading, meanings) with multilingual-e5-large. Used for synonyms | `build/embeddings.npy` |
 | `topic.py` | Topic vectors from fastText (`raw/cc.ja.300.vec.gz`, 1.3 GB, CC BY-SA 3.0). Used for 関 links | `build/topic.npy` |
 | `candidates.py` | For each theme facet, the closest words, for picking theme words | `build/candidates/<theme>.txt` |
-| `build.py` | Themes from `curation/`, links inside each theme, hand fixes | `../public/data/dataset.json` |
+| `build.py` | Themes from `curation/`, links inside each theme, hand fixes; marks katakana words that sound like their English meaning (`loanwords.py`), which players can skip | `../public/data/dataset.json` |
 | `map.py` | Fixed 2D position of every word (UMAP on topic vectors) and named areas, for the Map screen. Rerun after `build.py` | `../public/data/map.json` |
+| `kanji.py` | On and kun readings, meanings and strokes of each kanji the dataset uses (KANJIDIC2), for the word details panel | `../public/data/kanji.json` |
 | `english.py` | The English dataset, for Japanese speakers (see below). Rerun after `map.py` | `../public/data/dataset-en.json`, `map-en.json` |
 
 ## Curation: what a person (or Claude) decides
@@ -63,7 +64,7 @@ Curation, in `curation/en/`:
 
 ## Sources and licenses
 
-JMdict (EDRDG, CC BY-SA 4.0) via jmdict-simplified; JLPT lists by Jonathan Waller (CC BY) via
+JMdict and KANJIDIC2 (EDRDG, CC BY-SA 4.0) via jmdict-simplified; JLPT lists by Jonathan Waller (CC BY) via
 yomitan-jlpt-vocab; example sentences from Tatoeba (CC BY 2.0 FR); wordfreq for frequencies.
 The dataset is therefore CC BY-SA 4.0. Credits are shown in the app's Settings.
 

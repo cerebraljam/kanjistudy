@@ -271,3 +271,9 @@ a.row-card:hover { border-color: var(--line-strong); color: var(--ink); }
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+
+/* A word as a chip, by how well it is known: Theme pages and the word details panel. */
+.word-chip { font-size: 15px; padding: 6px 10px; border-radius: 10px; cursor: pointer; min-height: 36px; line-height: 1.3; }
+.word-chip.solid { background: var(--primary); color: var(--on-primary); border: 1.5px solid var(--primary); }
+.word-chip.shaky { background: var(--bg); color: var(--shaky); border: 1.5px solid var(--shaky); }
+.word-chip.unseen { background: var(--bg); color: var(--muted); border: 1.5px dashed var(--muted); }

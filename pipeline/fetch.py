@@ -3,6 +3,7 @@
 Sources (all CC-BY-SA 4.0 or CC-BY; credit them in the app):
 - JMdict (EDRDG), English glosses, as JSON by scriptin/jmdict-simplified.
 - JMdict example sentences (from Tatoeba, CC-BY 2.0 FR), same project.
+- KANJIDIC2 (EDRDG, CC-BY-SA 4.0): readings and meanings of each kanji, same project.
 - JLPT word lists by Jonathan Waller (tanos.co.uk), matched to JMdict ids by stephenmk/yomitan-jlpt-vocab.
 """
 
@@ -27,7 +28,11 @@ def get(url: str) -> bytes:
 def fetch_jmdict() -> None:
     release = json.loads(get(RELEASES))
     # Exact names: "jmdict-eng-common-…" (a smaller edition) must not match "jmdict-eng-".
-    wanted = {r"jmdict-eng-\d": "jmdict-eng.json", r"jmdict-examples-eng-\d": "jmdict-examples-eng.json"}
+    wanted = {
+        r"jmdict-eng-\d": "jmdict-eng.json",
+        r"jmdict-examples-eng-\d": "jmdict-examples-eng.json",
+        r"kanjidic2-en-\d": "kanjidic2-en.json",  # kanji readings and meanings, for the word details panel
+    }
     for asset in release["assets"]:
         name = asset["name"]
         for pattern, out in wanted.items():

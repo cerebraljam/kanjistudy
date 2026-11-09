@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { onDestroy, untrack } from 'svelte';
-  import { app, save } from '../lib/app.svelte';
-  import { levelLabel, linkReason, readingText, romajiUnder, rubyFor } from '../lib/display';
+  import { onDestroy, tick as settled, untrack } from 'svelte';
+  import { app, save, study } from '../lib/app.svelte';
+  import { toRomaji, typeKana } from '../lib/kana';
+  import { diffChars, levelLabel, linkReason, readingText, romajiUnder, rubyFor } from '../lib/display';
   import { wordStatus } from '../lib/progress';
   import { href, replace } from '../lib/router.svelte';
   import { Session, type Answered, type Option } from '../lib/session';
+  import { closeDetails, details, showWord } from '../lib/details.svelte';
   import { isMove, Q_META } from '../lib/types';
   import Icon from '../components/Icon.svelte';
   import Trail from '../components/Trail.svelte';
@@ -27,7 +29,13 @@
   let tick = $state(0);
   let answered = $state<Answered | null>(null);
   let timer: ReturnType<typeof setTimeout> | undefined;
-  onDestroy(() => clearTimeout(timer));
+  /** A right answer waits instead of moving on while the details sheet is open. */
+  let held = $state(false);
+  onDestroy(() => {
+    clearTimeout(timer);
+    details.asking = null;
+    details.next = null;
+  });
 
   const view = $derived.by(() => {
     tick;
@@ -51,7 +59,48 @@
       results: session.history.map((h) => h.correct),
       rolling: session.rolling,
       wordSize: fit(w.jp, 60),
+      // Hard mode: readings and spellings are typed.
+      typing: settings.typeAnswers && q.q === 'read',
     };
+  });
+
+  // ---- typed answers ----
+  let typed = $state('');
+  let field = $state<HTMLInputElement>();
+  // Each typed question starts empty, with the keyboard up.
+  $effect(() => {
+    if (view?.typing && !answered) {
+      view.q;
+      typed = '';
+      settled().then(() => field?.focus());
+    }
+  });
+
+  /** Romaji become kana as they are typed (like a Japanese keyboard), when the player reads hiragana. */
+  function onType(e: Event) {
+    const input = e.currentTarget as HTMLInputElement;
+    if ((e as InputEvent).isComposing || study !== 'ja' || !settings.hiragana) {
+      typed = input.value;
+      return;
+    }
+    const { kana, pending } = typeKana(input.value);
+    typed = input.value = kana + pending;
+  }
+
+  function submitTyped(e: SubmitEvent) {
+    e.preventDefault();
+    if (!session || answered) return;
+    settle(session.answerTyped(typed));
+  }
+
+  /** What was typed, against the right answer, with the differences marked. */
+  // In romaji for a player who does not read hiragana (the id keeps what was typed, the label its kana).
+  const typedDiff = $derived.by(() => {
+    if (!answered || answered.correct || !answered.picked.id.startsWith('typed:')) return null;
+    const raw = answered.picked.id.slice('typed:'.length).trim().toLowerCase();
+    const right = answered.question.options.find((o) => o.correct)!.label;
+    if (study === 'ja' && !settings.hiragana) return diffChars(raw, toRomaji(right));
+    return diffChars(answered.picked.label === '—' ? '' : answered.picked.label, right);
   });
 
   /** Font size for the word on the card: long English words get smaller, to fit a phone's width. */
@@ -75,15 +124,29 @@
 
   function pick(o: Option) {
     if (!session || answered) return;
-    answered = session.answer(o.id);
+    settle(session.answer(o.id));
+  }
+
+  function settle(a: Answered) {
+    if (!session) return;
+    answered = a;
     save();
     tick++;
-    if (answered.correct && settings.autoAdvance) timer = setTimeout(next, 700);
+    // A docked panel follows the run: the word the chain moved to, or the word just checked.
+    if (details.docked && details.word) details.word = isMove(answered.question.q) ? answered.question.options.find((x) => x.correct)!.id : answered.question.word;
+    if (answered.correct && settings.autoAdvance) {
+      timer = setTimeout(() => {
+        if (details.word && !details.docked) held = true;
+        else next();
+      }, 700);
+    }
   }
 
   function next() {
     clearTimeout(timer);
     if (!session) return;
+    if (!details.docked) closeDetails();
+    held = false;
     answered = null;
     session.next();
     if (session.done) {
@@ -97,6 +160,8 @@
 
   function onkeydown(e: KeyboardEvent) {
     if (e.metaKey || e.ctrlKey || e.altKey || !view) return;
+    // Typing an answer: digits and Enter belong to the text field until it is answered.
+    if (!answered && (e.target as HTMLElement)?.tagName === 'INPUT') return;
     const n = Number(e.key);
     if (!answered && n >= 1 && n <= view.q.options.length) {
       e.preventDefault();
@@ -111,6 +176,11 @@
     answered && isMove(answered.question.q) ? `Continue from ${answered.question.options.find((o) => o.correct)!.label}` : 'Continue',
   );
   const peekWord = $derived(answered?.peek ? g.word(answered.peek) : null);
+  // The details panel never answers the question on screen, and offers Continue while one waits.
+  $effect(() => {
+    details.asking = view && !answered ? view.q.word : null;
+    details.next = answered ? next : null;
+  });
   /** Why the right answer of a 関/同 question is linked to the word asked about. */
   const reason = $derived(
     answered && isMove(answered.question.q) ? linkReason(g, answered.question.word, answered.question.options.find((o) => o.correct)!.id, theme) : null,
@@ -146,14 +216,16 @@
       <div class="chain small" class:hot={view.rolling} title="Right answers in a row">連鎖 <span class="x">×</span>{view.chain}</div>
     </header>
 
-    <Trail entries={view.trail} graph={g} />
+    <Trail entries={view.trail} graph={g} secret={view.q.q === 'read' && !answered ? (view.word.spell ? view.word.jp : (view.word.kana ?? null)) : null} />
 
     {#if peekWord && answered}
       <!-- A missed word the player had never seen: show it, then check it right away. -->
       <section class="stage peek" aria-label="New word">
         <div class="word-block">
           <span class="new-tag">New word</span>
-          <WordText text={peekWord.jp} size={/[a-z]/i.test(peekWord.jp) ? fit(peekWord.jp, 56) : 56} />
+          <button class="word-btn" aria-label="Details of {peekWord.jp}" onclick={() => showWord(peekWord.id)}>
+            <WordText text={peekWord.jp} size={/[a-z]/i.test(peekWord.jp) ? fit(peekWord.jp, 56) : 56} />
+          </button>
           {#if peekWord.kana && peekWord.kana !== peekWord.jp}
             <div class="peek-reading jp">{readingText(peekWord.kana, settings)}</div>
           {/if}
@@ -185,17 +257,55 @@
           {#if view.q.jump}<span class="tiny muted">New chain</span>{/if}
           <div class="card">
             <span class="seal" aria-hidden="true">{view.meta.glyph}</span>
-            <WordText text={view.text} ruby={view.ruby} size={view.text === view.word.jp ? view.wordSize : 'min(44px, 8dvh)'} />
+            {#if answered}
+              <!-- Answered: the word opens its details (never before, they would give the answer). -->
+              <button class="word-btn" aria-label="Details of {view.word.jp}" onclick={() => showWord(view.word.id)}>
+                <WordText text={view.text} ruby={view.ruby} size={view.text === view.word.jp ? view.wordSize : 'min(44px, 8dvh)'} />
+              </button>
+            {:else}
+              <WordText text={view.text} ruby={view.ruby} size={view.text === view.word.jp ? view.wordSize : 'min(44px, 8dvh)'} />
+            {/if}
             <div class="reveal small muted">{view.reveal}</div>
           </div>
         </div>
         <div class="prompt">
           <span class="glyph" aria-hidden="true">{view.meta.glyph}</span>
-          <span>{view.meta.prompt}</span>
+          <span>{view.typing ? (study === 'ja' ? 'Type the reading' : 'Type the word') : view.meta.prompt}</span>
         </div>
         <!-- Rebuilt for every question: a reused button would keep the last tap's touch/hover state,
              and the same word can be the right answer twice in a row (関 to it, then 意 on it). -->
         {#key view.q}
+        {#if view.typing}
+          <form class="typed" onsubmit={submitTyped}>
+            <input
+              bind:this={field}
+              value={typed}
+              oninput={onType}
+              class="answer"
+              class:latin={study === 'en' || !settings.hiragana}
+              class:right={answered?.correct}
+              class:wrong={answered && !answered.correct}
+              disabled={!!answered}
+              lang={study === 'en' ? 'en' : 'ja'}
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              enterkeyhint="done"
+              aria-label={study === 'ja' ? 'Reading, in romaji or kana' : 'Spelling'}
+              placeholder={study === 'en' ? 'Spelling' : settings.hiragana ? 'Romaji or kana' : 'Romaji'}
+            />
+            {#if !answered}
+              <button class="btn primary">{typed.trim() ? 'Check' : 'Show answer'}</button>
+            {:else if typedDiff}
+              <div class="diff" aria-label="Your answer, then the right one">
+                <span class="tiny muted">You typed</span>
+                <span class="line" class:jp={study === 'ja'}>{#each typedDiff.typed as c, i (i)}<span class:miss={!c.ok}>{c.ch}</span>{:else}<span class="muted">nothing</span>{/each}</span>
+                <span class="tiny muted">Right</span>
+                <span class="line" class:jp={study === 'ja'}>{#each typedDiff.right as c, i (i)}<span class:fix={!c.ok}>{c.ch}</span>{/each}</span>
+              </div>
+            {/if}
+          </form>
+        {:else}
         <div class="options" class:six={view.q.options.length > 4}>
           {#each view.q.options as o, i (o.id)}
             {@const ruby = optionRuby(o)}
@@ -220,16 +330,19 @@
             </button>
           {/each}
         </div>
+        {/if}
         {/key}
       </section>
       <footer class="foot">
-        {#if answered && (!answered.correct || !settings.autoAdvance)}
+        {#if answered && (!answered.correct || !settings.autoAdvance || held)}
           {#if reason && !peekWord}<p class="small muted center reason">{reason}</p>{/if}
           <button class="btn primary block" onclick={next}>{nextLabel}</button>
         {:else if answered?.settled}
           <p class="center"><span class="chip gain">+1 solid · <span class="jp">{g.word(answered.settled).jp}</span></span></p>
         {:else if !answered && view.rolling}
           <p class="center"><span class="chip roll">On a roll · known words count faster</span></p>
+        {:else if !answered && view.typing}
+          <p class="small muted center">Enter to check. Right answers move on by themselves.</p>
         {:else if !answered}
           <p class="small muted center">Pick one. Right answers move on by themselves.</p>
         {/if}
@@ -250,6 +363,21 @@
   .segments .right { background: var(--right); }
   .segments .wrong { background: var(--wrong); }
   .segments .now { background: var(--accent); }
+  .typed { display: flex; flex-direction: column; gap: 10px; }
+  .answer {
+    height: clamp(56px, 9dvh, 72px); padding: 0 16px; border-radius: var(--radius); font-size: 26px; text-align: center;
+    border: var(--tile-border) solid var(--line-strong); background: var(--tile); color: var(--ink); font-family: var(--jp);
+  }
+  .answer.latin { font-family: inherit; letter-spacing: 0.02em; }
+  .answer:focus { outline: none; border-color: var(--accent); }
+  .answer.right { border-color: var(--right); background: var(--right-bg); color: var(--right); }
+  .answer.wrong { border-color: var(--wrong); background: var(--wrong-bg); color: var(--wrong); text-decoration: line-through; }
+  .diff { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline; padding: 4px 4px 0; }
+  .diff .line { font-size: 22px; letter-spacing: 0.04em; }
+  .diff .miss { color: var(--wrong); text-decoration: underline; text-underline-offset: 4px; }
+  .diff .fix { color: var(--right); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+  .word-btn { all: unset; cursor: pointer; border-radius: 12px; }
+  .word-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   .card { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
   .seal { display: none; }
   .chip { display: inline-block; padding: 7px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; }

@@ -1,10 +1,10 @@
 // One run: picks each question, builds its options, scores answers and moves the chain.
 // UI-agnostic, so the same code drives the app and the simulated learner in tests.
 
-import { fakeReadings, shuffle } from './kana';
+import { fakeReadings, shuffle, toKana } from './kana';
 import { edgeKey, meaningKey, readingKey, type Graph, type LinkKey } from './graph';
 import { infer, mastery, noteBest, record, SOLID, wordStatus, type Progress, confirm, neverMissed } from './progress';
-import { isMove, type EdgeType, type QType, type ThemeId, type WordId } from './types';
+import { isMove, type EdgeType, type QType, type ThemeId, type Word, type WordId } from './types';
 
 export interface Option {
   id: string;
@@ -129,6 +129,25 @@ export class Session {
     if (!q) throw new Error('no question');
     const picked = q.options.find((x) => x.id === optionId);
     if (!picked) throw new Error(`no option ${optionId}`);
+    return this.settle(q, picked);
+  }
+
+  /**
+   * A typed answer to a reading (romaji or kana) or spelling question. Right counts exactly like
+   * picking the right option; wrong is recorded with what was typed, shown in the trail.
+   */
+  answerTyped(text: string): Answered {
+    const q = this.question;
+    if (!q || q.q !== 'read') throw new Error('only readings and spellings are typed');
+    const right = q.options.find((o) => o.correct)!;
+    if (typedMatches(this.g.word(q.word), text)) return this.settle(q, right);
+    // The label is what the trail shows: for Japanese, the typed romaji as kana.
+    const raw = text.trim();
+    const shown = (this.g.word(q.word).spell ? raw.toLowerCase() : toKana(raw)) || '—';
+    return this.settle(q, { id: `typed:${raw}`, label: shown, gloss: 'what you typed', correct: false });
+  }
+
+  private settle(q: Question, picked: Option): Answered {
     const correct = picked.correct;
     const learn = q.target ?? q.word;
     const wasUnseen = wordStatus(this.g, this.p, learn) === 'unseen';
@@ -545,4 +564,10 @@ export class Session {
     }
     return xs[xs.length - 1];
   }
+}
+
+/** Whether a typed answer is the word's reading (Japanese, romaji or kana) or its spelling (English). */
+export function typedMatches(w: Word, text: string): boolean {
+  if (w.spell) return text.trim().toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, ' ') === w.jp;
+  return !!w.kana && toKana(text) === w.kana;
 }

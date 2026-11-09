@@ -5,6 +5,7 @@
   import { onDestroy, onMount } from 'svelte';
   import { app, AREA_THEME, loadMap, save, setAreaTheme, study } from '../lib/app.svelte';
   import { levelName } from '../lib/display';
+  import { showWord } from '../lib/details.svelte';
   import { levelFor } from '../lib/levels';
   import { mastery, wordStatus, type WordStatus } from '../lib/progress';
   import { go, href } from '../lib/router.svelte';
@@ -18,7 +19,8 @@
 
   let map = $state<WordMap | null>(null);
   let error = $state('');
-  let status: WordStatus[] = [];
+  /** Per map word; null for a word left out (Settings: skip easy loanwords), which is not drawn. */
+  let status: (WordStatus | null)[] = [];
   const STATES: WordStatus[] = ['unseen', 'shaky', 'solid'];
 
   // Totals, and solid words per JLPT level.
@@ -229,8 +231,10 @@
       for (const { i } of seen) {
         const x = toScreen(m.x[i], view.cx);
         const y = toScreen(m.y[i], view.cy) - r - 8;
-        const l = wordLabel(g, m.ids[i], status[i], labels);
-        if (label(l.text, l.jp, x, y, color[status[i]], l.jp ? 13 : 11, l.jp ? 600 : 500) && ++shown >= max) break;
+        const st = status[i];
+        if (!st) continue;
+        const l = wordLabel(g, m.ids[i], st, labels);
+        if (label(l.text, l.jp, x, y, color[st], l.jp ? 13 : 11, l.jp ? 600 : 500) && ++shown >= max) break;
       }
     }
   }
@@ -249,7 +253,7 @@
   onMount(() => {
     loadMap()
       .then((m) => {
-        status = m.ids.map((id) => wordStatus(g, p, id));
+        status = m.ids.map((id) => (g.words.has(id) ? wordStatus(g, p, id) : null));
         map = m;
         queueMicrotask(resize);
       })
@@ -270,11 +274,12 @@
   // ---- the selected area ----
   const area = $derived.by(() => {
     if (!selected || !map) return null;
-    const ids = selected.words.map((i) => map!.ids[i]);
+    const shownWords = selected.words.filter((i) => status[i]);
+    const ids = shownWords.map((i) => map!.ids[i]);
     const tally = new Map<string, number>();
     for (const w of ids) for (const t of g.themesOf(w)) if (t !== AREA_THEME && g.themeList.some((x) => x.id === t)) tally.set(t, (tally.get(t) ?? 0) + 1);
     const top = [...tally.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([t]) => g.themes.get(t)!);
-    const words = selected.words.map((i) => ({ id: map!.ids[i], status: status[i] }));
+    const words = shownWords.map((i) => ({ id: map!.ids[i], status: status[i]! }));
     return {
       ids,
       top,
@@ -349,7 +354,7 @@
         <span class="small muted">{area.solid} of {area.ids.length} solid</span>
       </div>
       <div class="chips">
-        {#each area.chips as c (c.id)}<span class="chip {c.status}" class:jp={c.jp}>{c.text}</span>{/each}
+        {#each area.chips as c (c.id)}<button class="chip {c.status}" class:jp={c.jp} onclick={() => showWord(c.id)} aria-label="{c.text}: details">{c.text}</button>{/each}
       </div>
       <div class="actions">
         {#if area.top[0]}<a class="btn small" href={href.theme(area.top[0].id)}>Open <span class="jp">{area.top[0].jp}</span></a>{/if}
@@ -416,7 +421,7 @@
   .title { font-size: 17px; font-weight: 700; display: flex; flex-direction: column; gap: 2px; }
   .title .en { font-size: 13px; font-weight: 400; color: var(--muted); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { padding: 4px 9px; border-radius: 8px; font-size: 13px; background: var(--bg); color: var(--muted); }
+  .chip { padding: 4px 9px; border-radius: 8px; font-size: 13px; background: var(--bg); color: var(--muted); border: 0; font-family: inherit; cursor: pointer; }
   .chip.jp { font-size: 14px; }
   .chip.solid { background: var(--right-bg); color: var(--map-solid); }
   .chip.shaky { color: var(--map-learning); }

@@ -168,3 +168,78 @@ export function seeded(seed: number): () => number {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+
+// ---- typing: romaji to kana, as a Japanese keyboard does ----
+
+const TYPED: Record<string, string> = (() => {
+  const t: Record<string, string> = {};
+  const rows: [string, string][] = [
+    ['', 'あいうえお'], ['k', 'かきくけこ'], ['s', 'さしすせそ'], ['t', 'たちつてと'], ['n', 'なにぬねの'],
+    ['h', 'はひふへほ'], ['m', 'まみむめも'], ['r', 'らりるれろ'], ['g', 'がぎぐげご'], ['z', 'ざじずぜぞ'],
+    ['d', 'だぢづでど'], ['b', 'ばびぶべぼ'], ['p', 'ぱぴぷぺぽ'], ['x', 'ぁぃぅぇぉ'], ['l', 'ぁぃぅぇぉ'],
+  ];
+  for (const [c, kana] of rows) [...'aiueo'].forEach((v, i) => (t[c + v] = kana[i]));
+  Object.assign(t, {
+    ya: 'や', yu: 'ゆ', yo: 'よ', wa: 'わ', wo: 'を', wi: 'うぃ', we: 'うぇ',
+    shi: 'し', chi: 'ち', tsu: 'つ', fu: 'ふ', ji: 'じ', sha: 'しゃ', shu: 'しゅ', sho: 'しょ', she: 'しぇ',
+    cha: 'ちゃ', chu: 'ちゅ', cho: 'ちょ', che: 'ちぇ', ja: 'じゃ', ju: 'じゅ', jo: 'じょ', je: 'じぇ',
+    fa: 'ふぁ', fi: 'ふぃ', fe: 'ふぇ', fo: 'ふぉ', va: 'ゔぁ', vi: 'ゔぃ', vu: 'ゔ', ve: 'ゔぇ', vo: 'ゔぉ',
+    xya: 'ゃ', xyu: 'ゅ', xyo: 'ょ', lya: 'ゃ', lyu: 'ゅ', lyo: 'ょ', xtsu: 'っ', ltsu: 'っ', xtu: 'っ', ltu: 'っ',
+    thi: 'てぃ', dhi: 'でぃ', "n'": 'ん', nn: 'ん',
+  });
+  // Contracted sounds: kya, sya, tya, nya, hya, mya, rya, gya, zya, dya, bya, pya; and cya, jya.
+  const small: Record<string, string> = { a: 'ゃ', u: 'ゅ', o: 'ょ' };
+  for (const [c, i] of Object.entries({ k: 'き', s: 'し', t: 'ち', c: 'ち', n: 'に', h: 'ひ', m: 'み', r: 'り', g: 'ぎ', z: 'じ', j: 'じ', d: 'ぢ', b: 'び', p: 'ぴ' }))
+    for (const [v, y] of Object.entries(small)) t[`${c}y${v}`] ??= i + y;
+  return t;
+})();
+const TYPED_PREFIXES = new Set(Object.keys(TYPED).flatMap((k) => [...k].map((_, i) => k.slice(0, i + 1))));
+
+/**
+ * Converts typed romaji to hiragana as it is typed: "kaisats" → { kana: "かいさ", pending: "ts" }.
+ * Kana typed directly (a Japanese keyboard) pass through. A final "n" stays pending until it is
+ * clear (なん → "nan" + "a" would be なな): toKana() settles it.
+ */
+export function typeKana(input: string): { kana: string; pending: string } {
+  const s = input.toLowerCase();
+  let kana = '';
+  let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (!/[a-z']/.test(c)) {
+      kana += c === '-' ? 'ー' : c;
+      i++;
+      continue;
+    }
+    // A doubled consonant is っ: kitte, matcha.
+    if (c === s[i + 1] && /[bcdfghjkmpqrstvwxyz]/.test(c) || (c === 't' && s[i + 1] === 'c')) {
+      kana += 'っ';
+      i++;
+      continue;
+    }
+    // ん before a consonant (kanji, sanpo), however it is typed.
+    if (c === 'n' && s[i + 1] && /[bcdfghjklmpqrstvwxz]/.test(s[i + 1])) {
+      kana += 'ん';
+      i++;
+      continue;
+    }
+    let hit = '';
+    for (let len = 4; len >= 1 && !hit; len--) if (TYPED[s.slice(i, i + len)]) hit = s.slice(i, i + len);
+    if (hit) {
+      kana += TYPED[hit];
+      i += hit.length;
+    } else if (TYPED_PREFIXES.has(s.slice(i))) {
+      return { kana, pending: input.slice(i) };
+    } else {
+      kana += input[i];
+      i++;
+    }
+  }
+  return { kana, pending: '' };
+}
+
+/** A typed answer as hiragana, everything settled: a final n is ん, katakana become hiragana. */
+export function toKana(input: string): string {
+  const { kana, pending } = typeKana(input.trim());
+  return toHiragana(kana + (pending.toLowerCase() === 'n' ? 'ん' : pending)).replace(/\s+/g, '');
+}

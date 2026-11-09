@@ -99,4 +99,25 @@ export function linkReason(g: Graph, a: WordId, b: WordId, prefer?: ThemeId): st
   return names.length ? `Often used together (${names.join(', ')})` : 'Often used together';
 }
 
+/**
+ * Lines a wrong typed answer up with the right one, character by character (longest common
+ * subsequence): what matches, and what differs on each side. かいさく / かいさつ → the last kana.
+ */
+export function diffChars(typed: string, right: string): { typed: { ch: string; ok: boolean }[]; right: { ch: string; ok: boolean }[] } {
+  const a = [...typed];
+  const b = [...right];
+  const L = Array.from({ length: a.length + 1 }, () => new Array<number>(b.length + 1).fill(0));
+  for (let i = a.length - 1; i >= 0; i--) for (let j = b.length - 1; j >= 0; j--) L[i][j] = a[i] === b[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const ta = a.map((ch) => ({ ch, ok: false }));
+  const tb = b.map((ch) => ({ ch, ok: false }));
+  for (let i = 0, j = 0; i < a.length && j < b.length; ) {
+    if (a[i] === b[j]) {
+      ta[i++].ok = true;
+      tb[j++].ok = true;
+    } else if (L[i + 1][j] >= L[i][j + 1]) i++;
+    else j++;
+  }
+  return { typed: ta, right: tb };
+}
+
 export const pct = (x: number) => `${Math.round(x * 100)}%`;

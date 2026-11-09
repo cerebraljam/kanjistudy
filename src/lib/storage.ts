@@ -24,6 +24,10 @@ export interface Settings {
   look: Look | null;
   /** Map labels: all English, all Japanese, or "mix" (words met in Japanese, the rest in English). */
   mapLabels: MapLabels;
+  /** Hard mode: readings (Japanese) and spellings (English) are typed instead of picked. */
+  typeAnswers: boolean;
+  /** Leave out katakana words that sound like their English meaning (コンピューター); false friends stay. */
+  skipLoanwords: boolean;
 }
 
 export interface Save {
@@ -74,6 +78,8 @@ export const defaultSettings = (): Settings => ({
   palette: 'green-red',
   look: null,
   mapLabels: 'mix',
+  typeAnswers: false,
+  skipLoanwords: false,
 });
 
 export const freshSave = (): Save => ({

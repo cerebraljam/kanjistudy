@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fakeReadings, morae, seeded, toHiragana, toRomaji } from '../src/lib/kana';
+import { fakeReadings, morae, seeded, toHiragana, toKana, toRomaji, typeKana } from '../src/lib/kana';
 
 describe('toRomaji', () => {
   it.each([
@@ -35,5 +35,22 @@ describe('fakeReadings', () => {
   });
   it('is deterministic for a seed', () => {
     expect(fakeReadings('ふぐあい', 3, seeded(7))).toEqual(fakeReadings('ふぐあい', 3, seeded(7)));
+  });
+});
+
+describe('typing romaji', () => {
+  it('turns romaji into hiragana', () => {
+    for (const [typed, kana] of [
+      ['kaisatsu', 'かいさつ'], ['kaisatu', 'かいさつ'], ['shinkansen', 'しんかんせん'], ['sinkansen', 'しんかんせん'],
+      ['kitte', 'きって'], ['matcha', 'まっちゃ'], ['kyou', 'きょう'], ['jisho', 'じしょ'], ['zyugyou', 'じゅぎょう'],
+      ['denwa', 'でんわ'], ['kin\'en', 'きんえん'], ['kinnen', 'きんえん'], ['konnnichiha', 'こんにちは'], ['hon', 'ほん'], ['sanpo', 'さんぽ'],
+      ['fuyu', 'ふゆ'], ['huyu', 'ふゆ'], ['chotto', 'ちょっと'], ['KAISATSU', 'かいさつ'], ['かいさつ', 'かいさつ'], ['カイサツ', 'かいさつ'],
+    ]) expect(toKana(typed), typed).toBe(kana);
+  });
+
+  it('keeps an unfinished syllable pending while typing', () => {
+    expect(typeKana('kaisats')).toEqual({ kana: 'かいさ', pending: 'ts' });
+    expect(typeKana('hon')).toEqual({ kana: 'ほ', pending: 'n' });
+    expect(typeKana('kan')).toEqual({ kana: 'か', pending: 'n' });
   });
 });

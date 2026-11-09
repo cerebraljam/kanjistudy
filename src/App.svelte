@@ -10,6 +10,8 @@
   import Welcome from './screens/Welcome.svelte';
   import WordMap from './screens/Map.svelte';
   import { applyLook } from './lib/look';
+  import { closeDetails, details } from './lib/details.svelte';
+  import WordDetails from './components/WordDetails.svelte';
 
   $effect(() => {
     document.documentElement.dataset.palette = app.save.settings.palette;
@@ -23,6 +25,11 @@
   const r = $derived(router.route);
   // Re-create a screen whenever the route changes, so each run and each visit starts fresh.
   const key = $derived(JSON.stringify(r) + (r.name === 'play' ? Math.random() : ''));
+  // A new screen closes the details sheet (a docked panel stays).
+  $effect(() => {
+    key;
+    if (!details.docked) closeDetails();
+  });
 </script>
 
 {#if app.error}
@@ -49,6 +56,7 @@
     <Home />
   {/if}
 {/key}
+<WordDetails />
 {/if}
 
 <style>

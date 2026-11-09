@@ -2,6 +2,7 @@
 
 import { useStudy } from './display';
 import { Graph } from './graph';
+import { withoutLoanwords } from './loanwords';
 import { load, loadStudy, persist, persistStudy, recoverable, saveKey, STORAGE_KEY, type Save } from './storage';
 import type { Dataset, Study, Theme, WordId } from './types';
 import { toWordMap, type WordMap, type WordMapFile } from './wordmap';
@@ -17,17 +18,22 @@ const KEY = saveKey(study);
 const file = (name: string) => (study === 'ja' ? `./data/${name}.json` : `./data/${name}-${study}.json`);
 
 export let dataset: Dataset = { version: 0, words: [], edges: [], themes: [] };
-let known = new Set<string>();
 
-/** Custom themes keep only words the current dataset still has (ids can change between data builds). */
-function buildGraph(custom: Theme[], area: Theme | null) {
-  const keep = (t: Theme) => ({ ...t, words: t.words.filter((w) => known.has(w)) });
+/**
+ * The graph the app plays on: the dataset (less easy loanwords, if skipped), plus custom themes.
+ * Custom themes keep only words still there (ids can change between data builds). Progress is
+ * never touched: turning the skip off brings everything back as it was.
+ */
+function buildGraph(custom: Theme[], area: Theme | null, skipLoanwords: boolean) {
+  const ds = skipLoanwords && study === 'ja' ? withoutLoanwords(dataset) : dataset;
+  const has = new Set(ds.words.map((w) => w.id));
+  const keep = (t: Theme) => ({ ...t, words: t.words.filter((w) => has.has(w)) });
   const kept = custom.map(keep).filter((t) => t.words.length > 0);
   const hidden = area ? [keep(area)].filter((t) => t.words.length > 0) : [];
-  return new Graph({ ...dataset, themes: [...dataset.themes, ...kept] }, hidden);
+  return new Graph({ ...ds, themes: [...ds.themes, ...kept] }, hidden);
 }
 
-/** Id of the theme made from a map area: one slot, replaced each time. */
+/** Id of the theme made from a map area or a kanji ("Play words with 駅"): one slot, replaced each time. */
 export const AREA_THEME = 'map-area';
 
 const initial = load(localStorage, KEY);
@@ -56,7 +62,6 @@ export async function loadData() {
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     dataset = (await res.json()) as Dataset;
     useStudy(dataset);
-    known = new Set(dataset.words.map((w) => w.id));
     rebuild();
     app.ready = true;
   } catch (err) {
@@ -67,7 +72,7 @@ export async function loadData() {
 /** Rebuilds the graph after the dataset, custom themes or the area theme change. */
 function rebuild() {
   const s = $state.snapshot(app.save) as Save;
-  app.graph = buildGraph(s.customThemes, s.areaTheme);
+  app.graph = buildGraph(s.customThemes, s.areaTheme, s.settings.skipLoanwords);
 }
 
 /** Writes the save to localStorage. Call after every change. */
@@ -121,6 +126,12 @@ export function switchStudy(next: Study) {
   if (next === study) return;
   persistStudy(next);
   location.reload();
+}
+
+export function setSkipLoanwords(skip: boolean) {
+  app.save.settings.skipLoanwords = skip;
+  rebuild();
+  save();
 }
 
 export const isCustom = (id: string) => app.save.customThemes.some((t) => t.id === id);

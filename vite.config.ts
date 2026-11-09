@@ -12,7 +12,11 @@ const versions = (name: string) => ({ ja: fileVersion(`public/data/${name}.json`
 export default defineConfig({
   base: './',
   plugins: [svelte()],
-  define: { __DATA_VERSION__: JSON.stringify(versions('dataset')), __MAP_VERSION__: JSON.stringify(versions('map')) },
+  define: {
+    __DATA_VERSION__: JSON.stringify(versions('dataset')),
+    __MAP_VERSION__: JSON.stringify(versions('map')),
+    __KANJI_VERSION__: JSON.stringify(fileVersion('public/data/kanji.json')),
+  },
   test: {
     include: ['tests/**/*.test.ts'],
   },

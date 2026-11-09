@@ -24,6 +24,8 @@ export interface Word {
   en: string[];
   /** Level, 5 the easiest: JLPT N5–N1, or for English A1 (5) to C2 (0). Omitted when on no list. */
   jlpt?: number;
+  /** Katakana that sounds like its English meaning (コンピューター): left out when the player skips those. */
+  loan?: boolean;
   /** English only: wrong spellings for the spelling question (綴). */
   spell?: string[];
   /** Optional example sentence and its translation. */

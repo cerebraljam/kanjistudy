@@ -26,6 +26,8 @@ from pathlib import Path
 
 import numpy as np
 
+from loanwords import is_transliteration
+
 HERE = Path(__file__).parent
 BUILD = HERE / "build"
 CURATION = HERE / "curation"
@@ -254,6 +256,8 @@ def main() -> int:
             o["jlpt"] = w["jlpt"]
         if w["noRead"]:
             o["noRead"] = True
+        if is_transliteration(w["jp"], o["en"]):  # コンピューター = computer: skippable (Settings)
+            o["loan"] = True
         if w["ex"]:
             o["ex"] = w["ex"]
         out_words.append(o)
